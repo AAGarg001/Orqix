@@ -1,4 +1,4 @@
-﻿import { randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -22,11 +22,11 @@ try {
   if (!(await runner.call(id, '/health')).ok) throw new Error('Worker health failed');
   await promisify(execFile)(process.env.PYTHON_EXECUTABLE, ['smoke_browser.py'], {
     cwd: path.resolve('workers'), timeout: 90000,
-    env: { PATH: process.env.PATH, LANG: 'C.UTF-8', LD_LIBRARY_PATH: process.env.LD_LIBRARY_PATH,
+    env: { PATH: process.env.PATH, LANG: 'C.UTF-8', LD_LIBRARY_PATH: process.env.LD_LIBRARY_PATH, DISPLAY: process.env.DISPLAY,
       WORKER_RUNTIME: 'hosted', CHROME_BINARY: process.env.CHROME_BINARY, CHROMEDRIVER_PATH: process.env.CHROMEDRIVER_PATH,
       WORK_DIR: work, LEGACY_SCRIPT: path.resolve('commonportalscraper separate Available.py'), OPERATIONS_SCRIPT: path.resolve('commonportalpwpscraper 2.1.py') },
   });
-  console.log('Native smoke passed: real Python worker and headless Chromium screenshot.');
+  console.log('Native smoke passed: real Python worker and visible Chromium on a virtual display screenshot.');
 } finally {
   await runner.shutdown();
   await rm(work, { recursive: true, force: true });

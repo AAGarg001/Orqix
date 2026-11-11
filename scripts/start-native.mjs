@@ -1,5 +1,5 @@
 import { readFile, mkdtemp, rm } from 'node:fs/promises';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -13,20 +13,41 @@ process.env.CHROME_BINARY = path.join(native, runtime.chrome);
 process.env.CHROMEDRIVER_PATH = path.join(native, runtime.driver);
 process.env.LD_LIBRARY_PATH = path.join(native, runtime.libraries) + ':' + (process.env.LD_LIBRARY_PATH ?? '');
 process.env.WORKER_RUNTIME = 'hosted';
+const display = spawn(path.join(native, runtime.display), [
+  '-displayfd', '1', '-screen', '0', '1440x1000x24', '-nolisten', 'tcp',
+  '-noreset', '-fp', 'built-ins', '-xkbdir', path.join(native, 'libs/usr/share/X11/xkb'),
+], { cwd: path.join(native, 'libs'), env: {
+  PATH: process.env.PATH, LD_LIBRARY_PATH: process.env.LD_LIBRARY_PATH,
+}, stdio: ['ignore', 'pipe', 'pipe'] });
+let displayLog = '';
+display.stderr.on('data', chunk => { displayLog = (displayLog + chunk.toString()).slice(-3000); });
+await new Promise((resolve, reject) => {
+  let output = '';
+  const timer = setTimeout(() => { display.kill(); reject(new Error('Virtual display startup timed out. ' + displayLog)); }, 15000);
+  display.once('error', error => { clearTimeout(timer); reject(error); });
+  display.once('exit', code => { clearTimeout(timer); reject(new Error(`Virtual display exited (${code}). ${displayLog}`)); });
+  display.stdout.on('data', chunk => {
+    output += chunk.toString();
+    const match = output.match(/^(\d+)\n/);
+    if (match) { clearTimeout(timer); process.env.DISPLAY = ':' + match[1]; resolve(); }
+  });
+});
+process.on('exit', () => display.kill());
+display.on('exit', () => { if (!process.argv.includes('--check') && !process.argv.includes('--smoke')) process.exit(1); });
 if (process.argv.includes('--check')) {
   const work = await mkdtemp(path.join(tmpdir(), 'orqix-native-check-'));
   try {
     await promisify(execFile)(process.env.PYTHON_EXECUTABLE, ['smoke_browser.py'], {
       cwd: path.join(root, 'workers'), timeout: 90000,
-      env: { PATH: process.env.PATH, LANG: 'C.UTF-8', LD_LIBRARY_PATH: process.env.LD_LIBRARY_PATH,
+      env: { PATH: process.env.PATH, LANG: 'C.UTF-8', LD_LIBRARY_PATH: process.env.LD_LIBRARY_PATH, DISPLAY: process.env.DISPLAY,
         WORKER_RUNTIME: 'hosted', CHROME_BINARY: process.env.CHROME_BINARY, CHROMEDRIVER_PATH: process.env.CHROMEDRIVER_PATH,
         WORK_DIR: work, LEGACY_SCRIPT: path.join(root, 'commonportalscraper separate Available.py'), OPERATIONS_SCRIPT: path.join(root, 'commonportalpwpscraper 2.1.py') },
     });
-    console.log('Native headless Chromium check passed.');
-  } finally { await rm(work, { recursive: true, force: true }); }
+    console.log('Native visible Chromium check passed.');
+  } finally { display.kill(); await rm(work, { recursive: true, force: true }); }
 } else if (process.argv.includes('--smoke')) {
   Object.assign(process.env, { NODE_ENV: 'test', METADATA_STORE: 'memory', PRIVATE_FILE_STORAGE: 'local' });
-  await import('./smoke-hosted.mjs');
+  try { await import('./smoke-hosted.mjs'); } finally { display.kill(); }
 } else {
   await import('../apps/api/dist/index.js');
 }

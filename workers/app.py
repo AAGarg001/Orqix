@@ -101,7 +101,9 @@ def browser(allow_new=True):
     arguments = ["--window-size=1440,900", "--disable-extensions", f"--user-data-dir={legacy.CHROME_PROFILE_DIR}"]
     if not local:
         arguments += ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
-        arguments += ["--headless=new", "--disable-background-networking", "--disable-software-rasterizer"]
+        if not os.environ.get("DISPLAY"):
+            raise RuntimeError("Hosted Chrome requires the managed virtual display. Start with node scripts/start-native.mjs.")
+        arguments += ["--disable-background-networking", "--disable-software-rasterizer"]
     for argument in arguments:
         options.add_argument(argument)
     options.add_experimental_option("prefs", {"download.default_directory": str(legacy.DOWNLOAD_DIR), "download.prompt_for_download": False, "download.directory_upgrade": True})

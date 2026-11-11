@@ -123,6 +123,7 @@ export class Runner {
               ...(config.WORKER_RUNTIME === "hosted" ? {
                 PATH: process.env.PATH, LANG: "C.UTF-8", TZ: "UTC",
                 LD_LIBRARY_PATH: process.env.LD_LIBRARY_PATH,
+                DISPLAY: process.env.DISPLAY,
                 CHROME_BINARY: process.env.CHROME_BINARY, CHROMEDRIVER_PATH: process.env.CHROMEDRIVER_PATH,
               } : process.env),
               WORKER_TOKEN: execution.token,

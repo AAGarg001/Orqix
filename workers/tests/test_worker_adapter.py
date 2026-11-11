@@ -70,6 +70,29 @@ def test_native_mode_uses_visible_chrome_and_a_private_job_profile(worker, monke
     assert f"--user-data-dir={module.legacy.CHROME_PROFILE_DIR}" in created["options"].arguments
     assert module.browser() is driver
 
+
+def test_hosted_mode_requires_display_and_never_enables_headless(worker, monkeypatch):
+    module, _ = worker
+    monkeypatch.setenv("WORKER_RUNTIME", "hosted")
+    monkeypatch.setenv("CHROME_BINARY", "/private/chrome")
+    monkeypatch.setenv("CHROMEDRIVER_PATH", "/private/chromedriver")
+    monkeypatch.delenv("DISPLAY", raising=False)
+    with pytest.raises(RuntimeError, match="managed virtual display"):
+        module.browser()
+    monkeypatch.setenv("DISPLAY", ":99")
+    created = {}
+    class HostedDriver(Driver):
+        def set_page_load_timeout(self, timeout):
+            pass
+    def chrome(**kwargs):
+        created.update(kwargs)
+        return HostedDriver()
+    monkeypatch.setattr(module.webdriver, "Chrome", chrome)
+    module.browser()
+    assert not any("headless" in argument for argument in created["options"].arguments)
+    assert created["options"].binary_location == "/private/chrome"
+    assert created["service"].path == "/private/chromedriver"
+
 def test_worker_available_calls_existing_excel_logic_and_cleans_session(worker, monkeypatch):
     module, client = worker
     driver = verify(worker, monkeypatch)

@@ -25,7 +25,7 @@ Original extraction logic is retained; desktop-only imports are optional for hos
 | commonportalscraper separate Available.py | workers/app.py | Login, procurement, wallet, Available and Excel |
 | commonportalpwpscraper 2.1.py | workers/operations.py | Distinct PWP/PIBO/sales parsers/forms and constrained production-record deletion |
 
-Local mode opens Chrome on the **backend computer**. Hosted mode uses native Python/headless Chromium with authenticated screenshot and input controls; it cannot open the end user's personal Chrome directly. OTP is completed by a human. Parallel capacity is bounded by provisioned CPU/RAM and portal behaviour; 50 concurrent browsers have not been load-tested.
+Local mode opens Chrome on the **backend computer**. Hosted mode uses native Python/visible Chromium on a virtual display with authenticated screenshot and input controls; it cannot open the end user's personal Chrome directly. OTP is completed by a human. Parallel capacity is bounded by provisioned CPU/RAM and portal behaviour; 50 concurrent browsers have not been load-tested.
 
 ## Source layout
 
@@ -52,7 +52,7 @@ Workbooks and submitted approval evidence are private files. Set PRIVATE_FILE_ST
 
 ## Deployment
 
-Use the native Node runtime described in [Render bot setup](docs/RENDER-BOT.md). Build with `bash scripts/render-build.sh` and start with `node scripts/start-native.mjs`. The build installs Python dependencies and matching headless Chromium/driver, then verifies the real browser. Keep production MongoDB and Cloudinary credentials in Render environment variables. No desktop display service is required.
+Use the native Node runtime described in [Render bot setup](docs/RENDER-BOT.md). Build with `bash scripts/render-build.sh` and start with `node scripts/start-native.mjs`. The build installs Python dependencies and matching visible Chromium on a virtual display/driver, then verifies the real browser. Keep production MongoDB and Cloudinary credentials in Render environment variables. No desktop display service is required.
 
 Optional configuration names: REDIS_URL; GRAPH_TENANT_ID, GRAPH_CLIENT_ID, GRAPH_CLIENT_SECRET, GRAPH_SENDER; AI_MODEL, AI_GATEWAY_API_KEY. Without these, UI reports configuration status and the assistant uses labeled SOP guidance. Graph sendMail acceptance is not delivery confirmation: https://learn.microsoft.com/en-us/graph/api/user-sendmail?view=graph-rest-1.0 . BullMQ scheduler documentation: https://docs.bullmq.io/guide/job-schedulers/ .
 

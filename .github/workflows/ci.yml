@@ -46,7 +46,7 @@ jobs:
       - run: npm run test:e2e
       - name: Install native cloud browser runtime
         run: python3 scripts/setup-native.py
-      - name: Verify native Python and headless Chromium
+      - name: Verify native Python and visible Chromium on a virtual display
         run: node scripts/start-native.mjs --smoke
       - name: Save browser failure reports
         if: failure()
