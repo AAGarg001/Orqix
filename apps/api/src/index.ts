@@ -1,4 +1,5 @@
 import http from "node:http";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
@@ -19,14 +20,16 @@ const webDist = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../../web/dist",
 );
-app.use(express.static(webDist, { index: false }));
-app.get("/{*path}", (req, res) => {
-  if (req.path.startsWith("/api/")) {
-    res.sendStatus(404);
-    return;
-  }
-  res.sendFile(path.join(webDist, "index.html"));
-});
+if (existsSync(path.join(webDist, "index.html"))) {
+  app.use(express.static(webDist, { index: false }));
+  app.get("/{*path}", (req, res) => {
+    if (req.path.startsWith("/api/")) { res.sendStatus(404); return; }
+    res.sendFile(path.join(webDist, "index.html"));
+  });
+} else {
+  // Vercel serves the frontend independently in the Render deployment.
+  app.get("/", (_req, res) => res.json({ service: "ORQIX API", health: "/api/health" }));
+}
 const server = http.createServer(app);
 let ticking = false;
 const timer = setInterval(() => {
