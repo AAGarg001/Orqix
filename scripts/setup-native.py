@@ -53,23 +53,21 @@ def main():
             executable.chmod(executable.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     library_dir = NATIVE / "libs/usr/lib/x86_64-linux-gnu"
     env = {**os.environ, "LD_LIBRARY_PATH": str(library_dir) + ":" + os.environ.get("LD_LIBRARY_PATH", "")}
+    # Render builds are unprivileged. Download signed-distribution packages
+    # and extract libraries under the project instead of requiring sudo.
+    lists = NATIVE / "apt/lists"
+    (lists / "partial").mkdir(parents=True, exist_ok=True)
+    debs = NATIVE / "apt/debs"
+    debs.mkdir(parents=True, exist_ok=True)
+    options = ["-o", f"Dir::State::lists={lists}", "-o", "APT::Get::List-Cleanup=0"]
+    run(["apt-get", *options, "update"])
+    packages = ["libnss3", "libnspr4", "libatk1.0-0", "libatk-bridge2.0-0", "libcups2", "libdbus-1-3", "libxkbcommon0", "libxcomposite1", "libxdamage1", "libxfixes3", "libxrandr2", "libgbm1", "libasound2", "libatspi2.0-0", "libx11-xcb1", "libdrm2", "libwayland-server0", "libx11-6", "libxcb1", "libxext6", "libxrender1", "libxi6", "libxcursor1", "libxss1", "libxtst6", "xvfb", "xserver-common", "x11-xkb-utils", "xkb-data", "libxfont2", "libxkbfile1", "libfontenc1", "libpixman-1-0", "libunwind8", "libxau6", "libxdmcp6"]
+    run(["apt-get", *options, "download", *packages], cwd=debs)
+    for package in debs.glob("*.deb"):
+        run(["dpkg-deb", "-x", package, NATIVE / "libs"])
     missing = subprocess.run(["ldd", chrome], capture_output=True, text=True, env=env).stdout
-    if True:  # Install the virtual display even when Chrome libraries already exist.
-        # Render builds are unprivileged. Download signed-distribution packages
-        # and extract libraries under the project instead of requiring sudo.
-        lists = NATIVE / "apt/lists"
-        (lists / "partial").mkdir(parents=True, exist_ok=True)
-        debs = NATIVE / "apt/debs"
-        debs.mkdir(parents=True, exist_ok=True)
-        options = ["-o", f"Dir::State::lists={lists}", "-o", "APT::Get::List-Cleanup=0"]
-        run(["apt-get", *options, "update"])
-        packages = ["libnss3", "libnspr4", "libatk1.0-0", "libatk-bridge2.0-0", "libcups2", "libdbus-1-3", "libxkbcommon0", "libxcomposite1", "libxdamage1", "libxfixes3", "libxrandr2", "libgbm1", "libasound2", "libatspi2.0-0", "libx11-xcb1", "libdrm2", "libwayland-server0", "libx11-6", "libxcb1", "libxext6", "libxrender1", "libxi6", "libxcursor1", "libxss1", "libxtst6", "xvfb", "xserver-common", "x11-xkb-utils", "xkb-data", "libxfont2", "libxkbfile1", "libfontenc1", "libpixman-1-0", "libunwind8", "libxau6", "libxdmcp6"]
-        run(["apt-get", *options, "download", *packages], cwd=debs)
-        for package in debs.glob("*.deb"):
-            run(["dpkg-deb", "-x", package, NATIVE / "libs"])
-        missing = subprocess.run(["ldd", chrome], capture_output=True, text=True, env=env).stdout
-        if "not found" in missing:
-            raise RuntimeError("Native Chromium libraries still missing: " + "; ".join(line.strip() for line in missing.splitlines() if "not found" in line))
+    if "not found" in missing:
+        raise RuntimeError("Native Chromium libraries still missing: " + "; ".join(line.strip() for line in missing.splitlines() if "not found" in line))
     # Relocate the distro X server's compiled keyboard-helper directory. The
     # same-length replacement preserves ELF offsets and avoids writing /usr/bin.
     xvfb = NATIVE / "libs/usr/bin/Xvfb"
