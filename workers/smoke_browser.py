@@ -2,6 +2,9 @@
 import os
 import sys
 import json
+from urllib.parse import urlsplit
+from urllib.request import urlopen, Request
+from urllib.error import HTTPError
 # Render Python does not include Tk; verify that desktop-only UI is optional.
 sys.modules["tkinter"] = None
 from fastapi.testclient import TestClient
@@ -37,12 +40,29 @@ try:
         result = {"ok": False, "loginUrl": legacy.LOGIN_URL}
         try:
             driver.set_page_load_timeout(45)
+            result["phase"] = "navigation"
             driver.get(legacy.LOGIN_URL)
+            result["phase"] = "login_fields"
             legacy.WebDriverWait(driver, 20).until(legacy.EC.visibility_of_element_located((legacy.By.XPATH, legacy.USER_ID_XPATH)))
             result["ok"] = bool(driver.find_elements(legacy.By.XPATH, legacy.PASSWORD_XPATH))
             result["reason"] = "login_form_visible" if result["ok"] else "password_field_missing"
         except Exception as error:
             result["reason"] = type(error).__name__
+        try:
+            location = urlsplit(driver.current_url)
+            result["browserLocation"] = location.scheme + "://" + (location.hostname or "") + location.path
+            result["pageTitle"] = driver.title[:120]
+            result["userFields"] = len(driver.find_elements(legacy.By.XPATH, legacy.USER_ID_XPATH))
+            result["passwordFields"] = len(driver.find_elements(legacy.By.XPATH, legacy.PASSWORD_XPATH))
+        except Exception:
+            result["browserDetails"] = "unavailable"
+        try:
+            with urlopen(Request(legacy.LOGIN_URL, headers={"User-Agent": "ORQIX connectivity probe"}), timeout=15) as response:
+                result["httpStatus"] = response.status
+        except HTTPError as error:
+            result["httpStatus"] = error.code
+        except Exception as error:
+            result["httpError"] = type(error).__name__
         print("PORTAL_PROBE_RESULT=" + json.dumps(result))
 finally:
     if legacy.driver:
