@@ -1,0 +1,655 @@
+{
+  "phase": "before",
+  "recordedAt": "2026-11-04T18:17:24.254Z",
+  "api": [
+    {
+      "query": "",
+      "ms": 3430,
+      "bytes": 51665,
+      "records": 33595,
+      "metrics": {
+        "units": 1,
+        "registrations": 1,
+        "available": 33595,
+        "certificateCount": 33595,
+        "expiredQuantity": 0,
+        "procurement": 492060.57069499954,
+        "suppliers": 426,
+        "registered": 51377.60257600008,
+        "unregistered": 440682.96811899997,
+        "issues": 22,
+        "openActions": 0
+      },
+      "digest": "cfb7f0c33c517a03dde589330c2a8514981d2f44a63209aad29b724d3faca277"
+    },
+    {
+      "query": "?category=Category%20I",
+      "ms": 243,
+      "bytes": 51664,
+      "records": 1540,
+      "metrics": {
+        "units": 1,
+        "registrations": 1,
+        "available": 33595,
+        "certificateCount": 33595,
+        "expiredQuantity": 0,
+        "procurement": 492060.57069499954,
+        "suppliers": 426,
+        "registered": 51377.60257600008,
+        "unregistered": 440682.96811899997,
+        "issues": 22,
+        "openActions": 0
+      },
+      "digest": "adf8fa9164a0decbe3e2688649d64649f5bec4ae67b0e5eba097e5de98d90120"
+    },
+    {
+      "query": "?category=Category%20II",
+      "ms": 272,
+      "bytes": 46464,
+      "records": 31965,
+      "metrics": {
+        "units": 1,
+        "registrations": 1,
+        "available": 33595,
+        "certificateCount": 33595,
+        "expiredQuantity": 0,
+        "procurement": 492060.57069499954,
+        "suppliers": 426,
+        "registered": 51377.60257600008,
+        "unregistered": 440682.96811899997,
+        "issues": 22,
+        "openActions": 0
+      },
+      "digest": "9ec5441bcf6a3277b9ebf34b4053a08aa5d2d3cb3c1e12fa2e9b0144395133b9"
+    },
+    {
+      "query": "?page=2",
+      "ms": 236,
+      "bytes": 51665,
+      "records": 33595,
+      "metrics": {
+        "units": 1,
+        "registrations": 1,
+        "available": 33595,
+        "certificateCount": 33595,
+        "expiredQuantity": 0,
+        "procurement": 492060.57069499954,
+        "suppliers": 426,
+        "registered": 51377.60257600008,
+        "unregistered": 440682.96811899997,
+        "issues": 22,
+        "openActions": 0
+      },
+      "digest": "b3c8efc6313234e408b394bc311c80ded77dbae40e4d854ba2fd465c84f62736"
+    },
+    {
+      "query": "?fy=2025-26",
+      "ms": 1652,
+      "bytes": 49238,
+      "records": 33595,
+      "metrics": {
+        "units": 1,
+        "registrations": 1,
+        "available": 33595,
+        "certificateCount": 33595,
+        "expiredQuantity": 0,
+        "procurement": 18028.650049999917,
+        "suppliers": 7,
+        "registered": 18028.650049999917,
+        "unregistered": 0,
+        "issues": 22,
+        "openActions": 0
+      },
+      "digest": "e7bc19c28ac138009d12d6add91a6b9756a8ae9a32c7e2508ce3aed02c358de8"
+    },
+    {
+      "query": "?supplier=UFLEX%20LIMITED",
+      "ms": 562,
+      "bytes": 49010,
+      "records": 33595,
+      "metrics": {
+        "units": 1,
+        "registrations": 1,
+        "available": 33595,
+        "certificateCount": 33595,
+        "expiredQuantity": 0,
+        "procurement": 24124.003619999912,
+        "suppliers": 1,
+        "registered": 24124.003619999912,
+        "unregistered": 0,
+        "issues": 22,
+        "openActions": 0
+      },
+      "digest": "8e67d9e9d1c7fc2cc1a31ac659518cf0dc3cb1287baa7893c66f7e37f4ed77cd"
+    },
+    {
+      "query": "?q=CR",
+      "ms": 328,
+      "bytes": 55814,
+      "records": 33595,
+      "metrics": {
+        "units": 1,
+        "registrations": 1,
+        "available": 33595,
+        "certificateCount": 33595,
+        "expiredQuantity": 0,
+        "procurement": 492060.57069499954,
+        "suppliers": 426,
+        "registered": 51377.60257600008,
+        "unregistered": 440682.96811899997,
+        "issues": 22,
+        "openActions": 0
+      },
+      "digest": "12475ab1e952c225cec3947c488256d03d57579439f3bb67603e4bd86b9f62b9"
+    },
+    {
+      "query": "",
+      "ms": 307,
+      "bytes": 51665,
+      "records": 33595,
+      "metrics": {
+        "units": 1,
+        "registrations": 1,
+        "available": 33595,
+        "certificateCount": 33595,
+        "expiredQuantity": 0,
+        "procurement": 492060.57069499954,
+        "suppliers": 426,
+        "registered": 51377.60257600008,
+        "unregistered": 440682.96811899997,
+        "issues": 22,
+        "openActions": 0
+      },
+      "digest": "cfb7f0c33c517a03dde589330c2a8514981d2f44a63209aad29b724d3faca277"
+    }
+  ],
+  "browser": {
+    "initialReadyMs": 2586,
+    "initialRequests": [
+      "/api/me",
+      "/api/client/context",
+      "/api/client/context",
+      "/api/client/axis",
+      "/api/client/subscription",
+      "/api/client/axis/notifications",
+      "/api/client/axis",
+      "/api/client/subscription"
+    ],
+    "longTasks": [
+      {
+        "duration": 115,
+        "start": 163.0999999642372
+      },
+      {
+        "duration": 78,
+        "start": 1174.800000011921
+      },
+      {
+        "duration": 341,
+        "start": 2148.399999976158
+      }
+    ],
+    "filterReadyMs": 1015,
+    "filterRequests": [
+      "/api/client/axis?category=Category+I"
+    ],
+    "failedRequests": [
+      {
+        "path": "/api/client/context",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/axis",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/subscription",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/context",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/axis",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/subscription",
+        "error": "net::ERR_ABORTED"
+      }
+    ],
+    "renderMetrics": [
+      {
+        "name": "LayoutCount",
+        "value": 93
+      },
+      {
+        "name": "RecalcStyleCount",
+        "value": 160
+      },
+      {
+        "name": "ScriptDuration",
+        "value": 0.772882
+      },
+      {
+        "name": "TaskDuration",
+        "value": 1.171964
+      }
+    ]
+  },
+  "mongo": [
+    {
+      "collection": "axisdatasets",
+      "query": "axisdatasets",
+      "executionMs": 0,
+      "docsExamined": 2,
+      "keysExamined": 2,
+      "returned": 2,
+      "plan": {
+        "isCached": true,
+        "stage": "LIMIT",
+        "limitAmount": 5000,
+        "inputStage": {
+          "stage": "FETCH",
+          "inputStage": {
+            "stage": "IXSCAN",
+            "keyPattern": {
+              "tenantId": 1,
+              "createdAt": -1
+            },
+            "indexName": "tenantId_1_createdAt_-1",
+            "isMultiKey": false,
+            "multiKeyPaths": {
+              "tenantId": [],
+              "createdAt": []
+            },
+            "isUnique": false,
+            "isSparse": false,
+            "isPartial": false,
+            "indexVersion": 2,
+            "direction": "forward",
+            "indexBounds": {
+              "tenantId": [
+                "[\"4c927983-3a6a-49b4-990e-052d235b3df4\", \"4c927983-3a6a-49b4-990e-052d235b3df4\"]"
+              ],
+              "createdAt": [
+                "[MaxKey, MinKey]"
+              ]
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        },
+        {
+          "name": "id_1",
+          "key": {
+            "id": 1
+          }
+        },
+        {
+          "name": "tenantId_1_createdAt_-1",
+          "key": {
+            "tenantId": 1,
+            "createdAt": -1
+          }
+        },
+        {
+          "name": "tenantId_1_targetKey_1_status_1",
+          "key": {
+            "tenantId": 1,
+            "targetKey": 1,
+            "status": 1
+          }
+        }
+      ]
+    },
+    {
+      "collection": "axisdatasets",
+      "query": "published",
+      "executionMs": 0,
+      "docsExamined": 2,
+      "keysExamined": 2,
+      "returned": 1,
+      "plan": {
+        "isCached": true,
+        "stage": "LIMIT",
+        "limitAmount": 5000,
+        "inputStage": {
+          "stage": "FETCH",
+          "filter": {
+            "status": {
+              "$eq": "PUBLISHED"
+            }
+          },
+          "inputStage": {
+            "stage": "IXSCAN",
+            "keyPattern": {
+              "tenantId": 1,
+              "createdAt": -1
+            },
+            "indexName": "tenantId_1_createdAt_-1",
+            "isMultiKey": false,
+            "multiKeyPaths": {
+              "tenantId": [],
+              "createdAt": []
+            },
+            "isUnique": false,
+            "isSparse": false,
+            "isPartial": false,
+            "indexVersion": 2,
+            "direction": "forward",
+            "indexBounds": {
+              "tenantId": [
+                "[\"4c927983-3a6a-49b4-990e-052d235b3df4\", \"4c927983-3a6a-49b4-990e-052d235b3df4\"]"
+              ],
+              "createdAt": [
+                "[MaxKey, MinKey]"
+              ]
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        },
+        {
+          "name": "id_1",
+          "key": {
+            "id": 1
+          }
+        },
+        {
+          "name": "tenantId_1_createdAt_-1",
+          "key": {
+            "tenantId": 1,
+            "createdAt": -1
+          }
+        },
+        {
+          "name": "tenantId_1_targetKey_1_status_1",
+          "key": {
+            "tenantId": 1,
+            "targetKey": 1,
+            "status": 1
+          }
+        }
+      ]
+    },
+    {
+      "collection": "axischunks",
+      "query": "axischunks",
+      "executionMs": 1,
+      "docsExamined": 72,
+      "keysExamined": 72,
+      "returned": 72,
+      "plan": {
+        "isCached": false,
+        "stage": "SORT",
+        "sortPattern": {
+          "createdAt": -1
+        },
+        "memLimit": 33554432,
+        "limitAmount": 5000,
+        "type": "simple",
+        "inputStage": {
+          "stage": "FETCH",
+          "inputStage": {
+            "stage": "IXSCAN",
+            "keyPattern": {
+              "datasetId": 1,
+              "index": 1
+            },
+            "indexName": "datasetId_1_index_1",
+            "isMultiKey": false,
+            "multiKeyPaths": {
+              "datasetId": [],
+              "index": []
+            },
+            "isUnique": true,
+            "isSparse": false,
+            "isPartial": false,
+            "indexVersion": 2,
+            "direction": "forward",
+            "indexBounds": {
+              "datasetId": [
+                "[\"9ccfda92-178a-4cc2-8294-8868f66fa439\", \"9ccfda92-178a-4cc2-8294-8868f66fa439\"]"
+              ],
+              "index": [
+                "[MinKey, MaxKey]"
+              ]
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        },
+        {
+          "name": "id_1",
+          "key": {
+            "id": 1
+          }
+        },
+        {
+          "name": "tenantId_1_createdAt_-1",
+          "key": {
+            "tenantId": 1,
+            "createdAt": -1
+          }
+        },
+        {
+          "name": "datasetId_1_index_1",
+          "key": {
+            "datasetId": 1,
+            "index": 1
+          }
+        }
+      ]
+    },
+    {
+      "collection": "portalaccounts",
+      "query": "portalaccounts",
+      "executionMs": 0,
+      "docsExamined": 0,
+      "keysExamined": 0,
+      "returned": 0,
+      "plan": {
+        "isCached": false,
+        "stage": "LIMIT",
+        "limitAmount": 5000,
+        "inputStage": {
+          "stage": "FETCH",
+          "inputStage": {
+            "stage": "IXSCAN",
+            "keyPattern": {
+              "tenantId": 1,
+              "createdAt": -1
+            },
+            "indexName": "tenantId_1_createdAt_-1",
+            "isMultiKey": false,
+            "multiKeyPaths": {
+              "tenantId": [],
+              "createdAt": []
+            },
+            "isUnique": false,
+            "isSparse": false,
+            "isPartial": false,
+            "indexVersion": 2,
+            "direction": "forward",
+            "indexBounds": {
+              "tenantId": [
+                "[\"4c927983-3a6a-49b4-990e-052d235b3df4\", \"4c927983-3a6a-49b4-990e-052d235b3df4\"]"
+              ],
+              "createdAt": [
+                "[MaxKey, MinKey]"
+              ]
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        },
+        {
+          "name": "id_1",
+          "key": {
+            "id": 1
+          }
+        },
+        {
+          "name": "tenantId_1_createdAt_-1",
+          "key": {
+            "tenantId": 1,
+            "createdAt": -1
+          }
+        }
+      ]
+    },
+    {
+      "collection": "clientregistrations",
+      "query": "clientregistrations",
+      "executionMs": 0,
+      "docsExamined": 0,
+      "keysExamined": 0,
+      "returned": 0,
+      "plan": {
+        "isCached": true,
+        "stage": "LIMIT",
+        "limitAmount": 5000,
+        "inputStage": {
+          "stage": "FETCH",
+          "inputStage": {
+            "stage": "IXSCAN",
+            "keyPattern": {
+              "tenantId": 1,
+              "createdAt": -1
+            },
+            "indexName": "tenantId_1_createdAt_-1",
+            "isMultiKey": false,
+            "multiKeyPaths": {
+              "tenantId": [],
+              "createdAt": []
+            },
+            "isUnique": false,
+            "isSparse": false,
+            "isPartial": false,
+            "indexVersion": 2,
+            "direction": "forward",
+            "indexBounds": {
+              "tenantId": [
+                "[\"4c927983-3a6a-49b4-990e-052d235b3df4\", \"4c927983-3a6a-49b4-990e-052d235b3df4\"]"
+              ],
+              "createdAt": [
+                "[MaxKey, MinKey]"
+              ]
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        },
+        {
+          "name": "id_1",
+          "key": {
+            "id": 1
+          }
+        },
+        {
+          "name": "tenantId_1_createdAt_-1",
+          "key": {
+            "tenantId": 1,
+            "createdAt": -1
+          }
+        },
+        {
+          "name": "tenantId_1_cpcbId_1",
+          "key": {
+            "tenantId": 1,
+            "cpcbId": 1
+          }
+        }
+      ]
+    },
+    {
+      "collection": "organizationmembers",
+      "query": "organizationmembers",
+      "executionMs": 0,
+      "docsExamined": 2,
+      "keysExamined": 0,
+      "returned": 1,
+      "plan": {
+        "isCached": false,
+        "stage": "SORT",
+        "sortPattern": {
+          "createdAt": -1
+        },
+        "memLimit": 33554432,
+        "limitAmount": 5000,
+        "type": "simple",
+        "inputStage": {
+          "stage": "COLLSCAN",
+          "filter": {
+            "$and": [
+              {
+                "status": {
+                  "$eq": "ACTIVE"
+                }
+              },
+              {
+                "userId": {
+                  "$eq": "64742285-0177-496c-b8f1-f60e935e9388"
+                }
+              }
+            ]
+          },
+          "direction": "forward"
+        }
+      },
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        },
+        {
+          "name": "id_1",
+          "key": {
+            "id": 1
+          }
+        },
+        {
+          "name": "tenantId_1_userId_1",
+          "key": {
+            "tenantId": 1,
+            "userId": 1
+          }
+        }
+      ]
+    }
+  ]
+}

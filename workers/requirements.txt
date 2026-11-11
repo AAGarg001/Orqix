@@ -1,0 +1,9 @@
+fastapi==0.119.1
+uvicorn==0.38.0
+selenium==4.37.0
+pandas==2.3.3
+openpyxl==3.1.5
+xlrd==2.0.2
+pytest==8.4.2
+httpx==0.28.1
+python-multipart==0.0.20

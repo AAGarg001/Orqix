@@ -1,0 +1,11 @@
+# Replace with your real DNS name. Caddy obtains and renews HTTPS certificates.
+automation.example.com {
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:4000 {
+        flush_interval -1
+    }
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' wss:; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+    }
+}

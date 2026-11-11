@@ -1,0 +1,227 @@
+{
+  "requests": [
+    {
+      "query": "",
+      "beforeMs": 3430,
+      "afterMs": 3472,
+      "identical": true,
+      "metricsEqual": true,
+      "bytesEqual": true
+    },
+    {
+      "query": "?category=Category%20I",
+      "beforeMs": 243,
+      "afterMs": 201,
+      "identical": true,
+      "metricsEqual": true,
+      "bytesEqual": true
+    },
+    {
+      "query": "?category=Category%20II",
+      "beforeMs": 272,
+      "afterMs": 200,
+      "identical": true,
+      "metricsEqual": true,
+      "bytesEqual": true
+    },
+    {
+      "query": "?page=2",
+      "beforeMs": 236,
+      "afterMs": 232,
+      "identical": true,
+      "metricsEqual": true,
+      "bytesEqual": true
+    },
+    {
+      "query": "?fy=2025-26",
+      "beforeMs": 1652,
+      "afterMs": 218,
+      "identical": true,
+      "metricsEqual": true,
+      "bytesEqual": true
+    },
+    {
+      "query": "?supplier=UFLEX%20LIMITED",
+      "beforeMs": 562,
+      "afterMs": 200,
+      "identical": true,
+      "metricsEqual": true,
+      "bytesEqual": true
+    },
+    {
+      "query": "?q=CR",
+      "beforeMs": 328,
+      "afterMs": 200,
+      "identical": true,
+      "metricsEqual": true,
+      "bytesEqual": true
+    },
+    {
+      "query": "",
+      "beforeMs": 307,
+      "afterMs": 219,
+      "identical": true,
+      "metricsEqual": true,
+      "bytesEqual": true
+    }
+  ],
+  "beforeBrowser": {
+    "initialReadyMs": 2586,
+    "initialRequests": [
+      "/api/me",
+      "/api/client/context",
+      "/api/client/context",
+      "/api/client/axis",
+      "/api/client/subscription",
+      "/api/client/axis/notifications",
+      "/api/client/axis",
+      "/api/client/subscription"
+    ],
+    "longTasks": [
+      {
+        "duration": 115,
+        "start": 163.0999999642372
+      },
+      {
+        "duration": 78,
+        "start": 1174.800000011921
+      },
+      {
+        "duration": 341,
+        "start": 2148.399999976158
+      }
+    ],
+    "filterReadyMs": 1015,
+    "filterRequests": [
+      "/api/client/axis?category=Category+I"
+    ],
+    "failedRequests": [
+      {
+        "path": "/api/client/context",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/axis",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/subscription",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/context",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/axis",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/subscription",
+        "error": "net::ERR_ABORTED"
+      }
+    ],
+    "renderMetrics": [
+      {
+        "name": "LayoutCount",
+        "value": 93
+      },
+      {
+        "name": "RecalcStyleCount",
+        "value": 160
+      },
+      {
+        "name": "ScriptDuration",
+        "value": 0.772882
+      },
+      {
+        "name": "TaskDuration",
+        "value": 1.171964
+      }
+    ]
+  },
+  "afterBrowser": {
+    "initialReadyMs": 1937,
+    "initialRequests": [
+      "/api/me",
+      "/api/client/context",
+      "/api/client/context",
+      "/api/client/axis",
+      "/api/client/subscription",
+      "/api/client/axis/notifications",
+      "/api/client/axis",
+      "/api/client/subscription"
+    ],
+    "longTasks": [
+      {
+        "duration": 90,
+        "start": 160
+      },
+      {
+        "duration": 111,
+        "start": 816
+      },
+      {
+        "duration": 80,
+        "start": 930
+      },
+      {
+        "duration": 66,
+        "start": 1207.199999988079
+      },
+      {
+        "duration": 408,
+        "start": 1393
+      }
+    ],
+    "filterReadyMs": 468,
+    "filterRequests": [
+      "/api/client/axis?category=Category+I"
+    ],
+    "failedRequests": [
+      {
+        "path": "/api/client/context",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/axis",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/subscription",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/context",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/axis",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "path": "/api/client/subscription",
+        "error": "net::ERR_ABORTED"
+      }
+    ],
+    "renderMetrics": [
+      {
+        "name": "LayoutCount",
+        "value": 63
+      },
+      {
+        "name": "RecalcStyleCount",
+        "value": 136
+      },
+      {
+        "name": "ScriptDuration",
+        "value": 0.639477
+      },
+      {
+        "name": "TaskDuration",
+        "value": 1.055949
+      }
+    ]
+  },
+  "cachedMs": 137
+}

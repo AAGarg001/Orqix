@@ -1,0 +1,244 @@
+/* Shared enterprise tokens. Component selectors stay inside the application,
+   authentication or portal surfaces; no browser-wide typography resets. */
+:root {
+  --oq-primary:#075cf5; --oq-primary-hover:#0047d4; --oq-ink:#13284a;
+  --oq-heading:#0c2047; --oq-muted:#64748b; --oq-border:#e3ebf5;
+  --oq-canvas:#f4f8fd; --oq-surface:#fff; --oq-subtle:#f8fafe;
+  --oq-radius:15px; --oq-input-radius:11px; --oq-dialog-radius:20px;
+  --oq-shadow:0 1px 2px #13284a03,0 5px 18px #13284a04;
+  --oq-shadow-hover:0 2px 5px #13284a05,0 10px 28px #075cf50b;
+  --oq-ease:cubic-bezier(.22,.8,.25,1);
+}
+.oq-app,.oq-login,.oq-setup,.oq-modal { font-size:14px; line-height:1.5; color:var(--oq-ink); font-variant-numeric:tabular-nums; }
+.oq-app { background:var(--oq-canvas); }
+.oq-app h1,.oq-login h1,.oq-setup h1 { color:var(--oq-heading); font-size:32px; font-weight:700; line-height:1.25; letter-spacing:-.85px; }
+.oq-app h2,.oq-modal h2 { color:var(--oq-heading); font-size:18px; line-height:1.4; font-weight:650; letter-spacing:-.3px; }
+.oq-app h3 { font-size:15px; font-weight:600; }
+.oq-app .oq-content { padding:26px; max-width:1750px; }
+.oq-app .oq-page-header { margin-bottom:24px; align-items:center; }
+.oq-app .oq-page-header p { font-size:14px; margin-top:7px; max-width:780px; line-height:1.65; }
+.oq-route-surface { min-width:0; }
+.oq-app .oq-card,.oq-setup .oq-card { border-color:var(--oq-border); border-radius:var(--oq-radius); box-shadow:var(--oq-shadow); padding:20px; }
+.oq-app .oq-card p { font-size:13px; }
+.oq-app .oq-card-heading { gap:16px; margin-bottom:18px; flex-wrap:wrap; }
+.oq-app .oq-card-heading>span { font-size:12px; color:var(--oq-muted); }
+.oq-app .oq-metric { border-radius:var(--oq-radius); box-shadow:var(--oq-shadow); min-height:108px; padding:20px; }
+.oq-app .oq-metric>div:first-child>span { font-size:13px; line-height:1.5; }
+.oq-app .oq-metric strong { font-size:32px; font-weight:650; }
+.oq-app .oq-dashboard-metric { border-radius:var(--oq-radius); box-shadow:var(--oq-shadow); }
+.oq-app .oq-dashboard-metric:hover { transform:translateY(-2px); box-shadow:var(--oq-shadow-hover); }
+.oq-app .oq-button,.oq-modal .oq-button,.oq-login .oq-button { min-height:42px; font-size:13px; font-weight:600; padding:10px 16px; transition:color .18s,box-shadow .18s,border-color .18s,transform .14s; }
+.oq-app .oq-button:not(:disabled):active,.oq-modal .oq-button:not(:disabled):active { transform:scale(.98); }
+.oq-app .oq-button:disabled,.oq-modal .oq-button:disabled { opacity:.48; box-shadow:none; }
+.oq-app .oq-button.ghost { border-color:transparent; color:var(--oq-primary); min-height:36px; padding:6px 10px; }
+.oq-app .oq-button.ghost:hover { color:var(--oq-primary-hover); background:#edf3ff; }
+.oq-plain-button { transition:color .16s,background-color .16s,box-shadow .16s; }
+.oq-app :is(button,a,input,select,textarea):focus-visible,.oq-modal :is(button,a,input,select,textarea):focus-visible { outline:3px solid #8cb5ff; outline-offset:3px; }
+.oq-app label,.oq-modal label { font-size:13px; color:#425675; line-height:1.5; }
+.oq-app input,.oq-app select,.oq-app textarea,.oq-modal input,.oq-modal select,.oq-modal textarea { border-radius:var(--oq-input-radius); min-height:44px; font-size:14px; border-color:#dbe5f2; box-shadow:0 1px 2px #13284a03; transition:border-color .16s,box-shadow .16s; }
+.oq-app :is(input,select,textarea):hover,.oq-modal :is(input,select,textarea):hover { border-color:#b7c9e5; }
+.oq-app input[type=checkbox],.oq-modal input[type=checkbox] { min-height:18px; width:18px; height:18px; box-shadow:none; }
+.oq-app .oq-search input { min-height:38px; border-radius:0; box-shadow:none; font-size:13px; }
+.oq-app .oq-search { background:#fff; border-radius:10px; width:min(310px,100%); }
+.oq-app .oq-table-card { padding:0; overflow:hidden; }
+.oq-app .oq-table-toolbar { padding:12px 18px; flex-wrap:wrap; gap:12px; }
+.oq-app .oq-table-toolbar>span { font-size:12px; }
+.oq-app .oq-table-scroll th { font-size:12px; font-weight:600; padding:12px 14px; background:var(--oq-subtle); }
+.oq-app .oq-table-scroll th>button { color:#526785; min-height:24px; }
+.oq-app .oq-table-scroll td { font-size:13px; line-height:1.5; padding:13px 14px; color:#415777; }
+.oq-app .oq-table-scroll td strong { font-weight:600; }
+.oq-app .oq-table-scroll tbody tr { transition:background-color .14s; }
+.oq-app .oq-table-scroll tbody tr:hover { background:#f6f9ff; }
+.oq-app .oq-table-scroll td .oq-client-cell small,.oq-app .oq-table-scroll td>small { font-size:12px; }
+.oq-app .oq-pagination { font-size:12px; padding:12px 18px; gap:12px; flex-wrap:wrap; }
+.oq-app .oq-pagination .oq-button { width:34px; height:34px; min-height:34px; padding:6px; border:1px solid #e0e8f4; border-radius:50%; }
+.oq-app .oq-badge,.oq-modal .oq-badge { font-size:12px; font-weight:500; padding:4px 9px; border-radius:6px; }
+.oq-app .oq-info,.oq-modal .oq-info { font-size:13px; padding:12px 14px; border-radius:11px; line-height:1.65; }
+.oq-app .oq-error,.oq-modal .oq-error { border-radius:11px; font-size:13px; }
+.oq-app .oq-filter-panel { padding:16px; border-radius:var(--oq-radius); background:#fff; box-shadow:var(--oq-shadow); gap:14px; }
+.oq-app .oq-filter-panel label { font-size:12px; }
+.oq-app .oq-tabs { border-bottom:1px solid var(--oq-border); gap:8px; }
+.oq-app .oq-tabs button { font-size:13px; padding:12px 14px; transition:color .18s,background .18s; border-radius:8px 8px 0 0; }
+.oq-app .oq-tabs button.active { background:#edf3ff; }
+.oq-app .oq-empty { padding:28px 18px; min-height:140px; }
+.oq-app .oq-empty h3 { font-size:14px; margin-top:12px; }
+.oq-app .oq-empty p { font-size:13px; max-width:340px; }
+.oq-app .oq-bottom-grid>.oq-card { min-height:240px; }
+.oq-app .oq-workflow-dashboard .oq-bottom-grid>.oq-card { min-height:240px; }
+.oq-app .oq-stage-counts strong,.oq-app .oq-stage-counts small,.oq-app .oq-stepper strong,.oq-app .oq-stepper small { font-size:12px; }
+.oq-app .oq-module-grid>div { border-radius:11px; padding:12px; font-size:13px; background:#fbfcff; }
+.oq-app .oq-module-grid>div>.oq-badge { font-size:11px; padding:4px 7px; }
+.oq-app .oq-session-meta dt { font-size:12px; }
+.oq-app .oq-session-meta dd { font-size:13px; }
+.oq-app .oq-session-visual { border-radius:12px; background:linear-gradient(145deg,#f8faff,#f0f6ff); padding:24px 18px; }
+.oq-app .oq-session-visual strong { font-size:16px; }
+.oq-app .oq-session-visual p { font-size:13px; }
+.oq-app .oq-dropzone { border-radius:13px; border:1.5px dashed #b9cdef; background:#f8faff; transition:border-color .18s,background .18s; }
+.oq-app .oq-dropzone:hover { border-color:var(--oq-primary); background:#f0f5ff; }
+.oq-app .oq-dropzone span { font-size:12px; }
+.oq-app .oq-output { border-radius:12px; background:#f7faff; }
+.oq-app .oq-output p { font-size:13px; }
+.oq-app .oq-upload-picker .oq-actions { flex-wrap:wrap; }
+.oq-app .oq-role-grid>.oq-card { display:flex; flex-direction:column; gap:12px; }
+.oq-app .oq-role-grid li { font-size:13px; }
+.oq-app .oq-role-grid .oq-button { margin-top:auto; }
+.oq-modal { border-radius:var(--oq-dialog-radius); box-shadow:0 8px 24px #13284a0a,0 28px 80px #13284a26; padding:26px; max-height:calc(100dvh - 32px); }
+.oq-modal>p { font-size:13px; color:var(--oq-muted); margin-bottom:22px; }
+.oq-modal .oq-modal-footer { border-top:1px solid var(--oq-border); padding-top:18px; margin-top:12px; gap:10px; }
+.oq-modal .oq-close { width:36px; height:36px; display:grid; place-items:center; top:18px; right:16px; border-radius:9px; }
+.oq-modal .oq-close:hover { background:#edf3ff; color:var(--oq-primary); }
+.oq-modal .oq-field-error { font-size:12px; }
+.oq-choice-grid .oq-button { padding:22px 18px; min-height:90px; font-size:16px; border-radius:14px; }
+.oq-sidebar { box-shadow:4px 0 24px #2449bf08; }
+.oq-sidebar nav a { border-radius:10px; font-size:13px; min-height:44px; transition:background .18s,color .18s; }
+.oq-sidebar nav a.active { background:#ffffff24; font-weight:600; }
+.oq-sidebar nav a:focus-visible { outline:2px solid white; outline-offset:-2px; }
+.oq-sidebar-heading { margin-bottom:26px; }
+.oq-nav-section { font-size:11px; font-weight:500; color:#d8e4ff; opacity:.8; padding:18px 13px 8px; line-height:1.4; }
+.oq-nav-section:first-child { padding-top:0; }
+@media (min-width:801px) { .oq-sidebar-collapsed .oq-nav-section { height:12px; padding:0; font-size:0; } .oq-sidebar-collapsed .oq-nav-section:first-child { height:0; } }
+.oq-navbar .oq-breadcrumb { font-size:13px; }
+.oq-navbar .oq-breadcrumb strong { font-weight:600; }
+.oq-navbar-right { gap:20px; }
+.oq-navbar .oq-nav-user strong { font-size:13px; }
+.oq-navbar .oq-nav-user small { font-size:12px; }
+.oq-navbar .oq-notice-trigger,.oq-navbar .oq-nav-user>button,.oq-navbar-right>button { min-width:36px; min-height:36px; border-radius:9px; display:grid; place-items:center; }
+.oq-navbar button:hover { background:#edf3ff; color:var(--oq-primary); }
+.oq-profile-wrap { position:relative; }
+.oq-profile-wrap>.oq-profile-dropdown { position:absolute; z-index:60; top:46px; right:0; width:270px; background:#fff; border:1px solid var(--oq-border); border-radius:14px; box-shadow:0 14px 45px #13284a16; padding:8px; display:block; animation:oq-choice-enter .2s var(--oq-ease); }
+.oq-profile-dropdown>div { padding:12px; border-bottom:1px solid var(--oq-border); margin-bottom:6px; }
+.oq-profile-dropdown>div strong,.oq-profile-dropdown>div small { display:block; overflow-wrap:anywhere; }
+.oq-profile-dropdown>div small { color:var(--oq-muted); margin-top:4px; }
+.oq-profile-dropdown>div span { font-size:12px; display:block; color:#7a8ba3; margin-top:8px; }
+.oq-profile-dropdown>a,.oq-profile-dropdown>button { display:flex; align-items:center; gap:10px; padding:10px 12px; width:100%; font-size:13px; border-radius:8px; }
+.oq-profile-dropdown>a:hover { background:#edf3ff; color:var(--oq-primary); }
+.oq-app .oq-notice-dropdown { width:350px; border-radius:14px; box-shadow:0 14px 45px #13284a16; animation:oq-choice-enter .2s var(--oq-ease); }
+.oq-app .oq-notice-dropdown>button { font-size:13px; padding:14px 16px; }
+.oq-app .oq-notice-dropdown small { font-size:12px; }
+.oq-skip-link { position:fixed; top:8px; left:8px; padding:12px 18px; z-index:200; border-radius:8px; color:white; background:#13284a; transform:translateY(-160%); }
+.oq-skip-link:focus { transform:translateY(0); }
+.oq-sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.oq-loading-surface { display:block; padding:24px; min-height:260px; background:#fff; border:1px solid var(--oq-border); border-radius:var(--oq-radius); }
+.oq-loading-surface .oq-skeleton-heading,.oq-skeleton-cards>div,.oq-skeleton-rows>div { background:linear-gradient(90deg,#edf2f9,#f8faff,#edf2f9); background-size:200% 100%; animation:oq-skeleton-sweep 1.6s ease-in-out infinite; border-radius:8px; }
+.oq-skeleton-heading { width:38%; height:24px; margin-bottom:22px; }
+.oq-skeleton-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:22px; }
+.oq-skeleton-cards>div { height:80px; }
+.oq-skeleton-rows { display:grid; gap:12px; }
+.oq-skeleton-rows>div { height:16px; }
+@keyframes oq-skeleton-sweep { to { background-position:-200% 0; } }
+.oq-app .oq-log-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:-4px 0 12px; }
+.oq-app .oq-log-toolbar label { margin:0; font-size:12px; }
+.oq-app .oq-live-logs { background:#f8fafe; color:#334d70; border:1px solid var(--oq-border); border-radius:12px; padding:14px; height:250px; font-size:12px; }
+.oq-app .oq-live-logs>div { border-bottom:1px solid #e9eff7; padding:9px 0; display:grid; grid-template-columns:82px minmax(0,1fr); gap:12px; }
+.oq-app .oq-live-logs time { font-size:11px; color:#8191a8; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.oq-app .oq-live-logs p { color:#435978; font-size:12px; margin:0; overflow-wrap:anywhere; line-height:1.7; }
+.oq-app .oq-live-logs>.oq-log-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; border:0; gap:8px; text-align:center; color:#7d90ad; }
+.oq-app .oq-execution-banner { display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #cbdfff; border-radius:10px; background:#eff5ff; color:#075cf5; margin-bottom:12px; font-size:12px; }
+.oq-execution-banner>strong { margin-left:auto; white-space:nowrap; }
+.oq-app .oq-chat { border-radius:var(--oq-radius); }
+.oq-app .oq-chat-user { font-size:14px; padding:14px 18px; border-radius:16px 16px 4px 16px; background:#075cf5; }
+.oq-app .oq-chat-answer { border:1px solid var(--oq-border); background:#f8fafe; border-radius:4px 16px 16px 16px; padding:16px 18px; animation:oq-choice-enter .2s var(--oq-ease); }
+.oq-app .oq-chat-answer p { font-size:14px; line-height:1.8; white-space:pre-wrap; }
+.oq-app .oq-chat-answer>span { font-size:12px; }
+.oq-app .oq-chat-answer small { font-size:12px; }
+.oq-app .oq-chat-welcome>span { background:linear-gradient(135deg,#edf3ff,#f4edff); color:#4963cd; }
+.oq-app .oq-chat-welcome>button { border:1px solid var(--oq-border); border-radius:11px; background:white; padding:13px; font-size:13px; transition:background .18s,border-color .18s; }
+.oq-app .oq-chat-welcome>button:hover { border-color:#c5d8ff; background:#f4f8ff; color:#075cf5; }
+.oq-app .oq-chat-input { border-radius:12px; padding:10px; border:1px solid var(--oq-border); }
+.oq-app .oq-chat-disclaimer { font-size:12px; line-height:1.6; }
+.oq-assistant-waiting { display:flex; align-items:center; gap:10px; padding:12px 18px; color:#627496; font-size:13px; }
+.oq-audit-details summary { cursor:pointer; color:#075cf5; white-space:normal; }
+.oq-audit-details pre { max-width:460px; max-height:220px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; background:#f8fafe; padding:12px; border:1px solid var(--oq-border); border-radius:9px; font-size:12px; }
+.oq-import-stages { list-style:none; padding:16px 20px; margin:0 0 22px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; background:white; border:1px solid var(--oq-border); border-radius:var(--oq-radius); }
+.oq-import-stages li { display:flex; align-items:center; gap:12px; color:#8999af; }
+.oq-import-stages li>span { width:34px; height:34px; display:grid; place-items:center; border-radius:50%; background:#eff3f9; flex-shrink:0; font-size:13px; }
+.oq-import-stages li strong { display:block; font-size:13px; font-weight:600; }
+.oq-import-stages li small { display:block; font-size:12px; margin-top:3px; }
+.oq-import-stages li[aria-current] { color:#075cf5; }
+.oq-import-stages li[aria-current]>span { background:#075cf5; color:white; }
+.oq-import-result { display:flex; align-items:center; gap:14px; padding:18px; border:1px solid #ccebd9; background:#f0faf4; color:#167541; border-radius:var(--oq-radius); margin-bottom:22px; }
+.oq-import-result p { margin:3px 0 0; font-size:13px; }
+.oq-import-result>a { margin-left:auto; }
+.oq-chart-skeleton { height:196px; border-radius:12px; background:#f1f5fb; }
+.oq-app .oq-intelligence dd { font-size:13px; overflow-wrap:anywhere; }
+.oq-app .oq-intelligence dt { font-size:12px; }
+.oq-app .oq-footer { font-size:11px; padding:20px 0 4px; }
+.oq-app .oq-footer>span:last-child { font-size:10px; }
+.oq-login .oq-login-card { border-radius:20px; box-shadow:0 6px 20px #13284a06,0 24px 64px #13284a0d; border:1px solid #e5edf8; }
+.oq-login.admin>header .oq-company-logo { filter:brightness(0) invert(1); }
+.oq-login .oq-login-card label { font-size:13px; }
+.oq-login .oq-login-card input { font-size:14px; min-height:46px; border-radius:11px; }
+.oq-login .oq-login-card input[type=checkbox] { min-height:16px; }
+.oq-login .oq-login-card>p { font-size:14px; line-height:1.7; }
+.oq-login .oq-login-card h1 { font-size:30px; }
+.oq-login .oq-login-options { font-size:12px; }
+.oq-login .oq-login-options>label { font-size:12px; }
+.oq-login .oq-login-security { font-size:12px; line-height:1.7; }
+.oq-login .oq-login-preview h2 { letter-spacing:-1px; }
+.oq-login .oq-login-preview>p { font-size:16px; }
+.oq-login .oq-login-features span { font-size:12px; }
+@media (max-width:1100px) { .oq-app .oq-content { padding:20px; } .oq-app .oq-navbar-right { gap:12px; } .oq-app .oq-sidebar nav a { font-size:12px; } }
+@media (max-width:800px) { .oq-app .oq-content { padding:20px; } .oq-app h1 { font-size:28px; } .oq-app .oq-page-header { align-items:flex-start; } .oq-app .oq-filter-panel { flex-wrap:wrap; } .oq-app .oq-profile-wrap>.oq-profile-dropdown { right:-40px; } }
+@media (max-width:600px) {
+  .oq-login>header { gap:12px; width:100%; }
+  .oq-login>header .oq-company-logo { width:160px; max-width:calc(100% - 120px); min-width:0; flex-shrink:1; }
+  .oq-login>header>a { font-size:11px; max-width:108px; min-height:44px; flex-shrink:0; gap:6px; }
+  .oq-login>header>a svg { flex-shrink:0; width:14px; height:14px; }
+  .oq-import-stages { grid-template-columns:1fr; gap:16px; padding:18px; }
+  .oq-import-stages li>div { min-width:0; }
+  .oq-import-result { flex-wrap:wrap; }
+  .oq-app .oq-tabs { max-width:100%; overflow-x:auto; padding-bottom:4px; }
+  .oq-app .oq-tabs button { flex-shrink:0; }
+  .oq-app .oq-content { padding:16px; } .oq-app h1 { font-size:26px; } .oq-app .oq-page-header p { font-size:13px; }
+  .oq-app .oq-card { padding:18px; } .oq-app .oq-table-card { padding:0; } .oq-app .oq-table-toolbar { padding:12px; }
+  .oq-app .oq-table-toolbar>.oq-search { width:100%; } .oq-app .oq-pagination { padding:12px; font-size:12px; }
+  .oq-app .oq-table-scroll td { font-size:13px; } .oq-app .oq-table-scroll th { font-size:12px; }
+  .oq-app .oq-metric { padding:16px; } .oq-app .oq-metric>div:first-child>span { font-size:12px; }
+  .oq-app .oq-card-heading>span { max-width:none; text-align:left; } .oq-app .oq-footer { flex-direction:column; align-items:flex-start; gap:8px; }
+  .oq-app .oq-stepper { overflow-x:auto; padding-bottom:12px; } .oq-app .oq-stepper>div { flex:1 0 108px; }
+  .oq-app .oq-profile-wrap>.oq-profile-dropdown { position:fixed; top:60px; right:12px; width:min(280px,calc(100vw - 24px)); }
+  .oq-app .oq-notice-dropdown { width:calc(100vw - 28px); } .oq-modal { padding:22px 18px; width:calc(100vw - 24px); }
+  .oq-modal .oq-close { right:12px; top:14px; } .oq-modal>h2 { padding-right:36px; font-size:19px; }
+  .oq-choice-grid { grid-template-columns:1fr; } .oq-choice-grid .oq-button { min-height:66px; }
+  .oq-login .oq-login-card { padding:24px 20px; } .oq-login .oq-login-card h1 { font-size:26px; }
+  .oq-app .oq-chat-input { padding:8px; } .oq-app .oq-live-logs>div { grid-template-columns:1fr; gap:4px; }
+  .oq-execution-banner { flex-wrap:wrap; } .oq-skeleton-cards { gap:8px; }
+}
+@media (max-width:360px) { .oq-app .oq-content { padding:12px; } .oq-app .oq-navbar { padding:0 12px; gap:8px; } .oq-app .oq-navbar-right { gap:6px; } .oq-app .oq-metrics { gap:8px; } .oq-app .oq-card { padding:16px; } .oq-app .oq-table-card { padding:0; } .oq-app .oq-donut { grid-template-columns:minmax(0,1fr); } .oq-app .oq-donut-legend { padding:0 10px 10px; } }
+@media (prefers-reduced-motion:reduce) { .oq-route-surface,.oq-chat-answer,.oq-profile-dropdown,.oq-notice-dropdown { animation:none !important; } .oq-app .oq-dashboard-metric:hover,.oq-app .oq-button:not(:disabled):active,.oq-modal .oq-button:not(:disabled):active { transform:none; } .oq-app .oq-button,.oq-modal .oq-button,.oq-plain-button { transition:none; } .oq-loading-surface * { animation:none !important; background:#edf2f9; } }
+
+/* Account workflow selection, task workspace and profile. */
+.oq-workflow-dashboard .oq-stage-counts{grid-template-columns:repeat(4,minmax(0,1fr))}
+.oq-workflow-select{display:block;max-width:620px;margin:12px 0 20px}
+.oq-client-select{background:none;border:0;padding:0;color:var(--oq-text,#13284a);font:inherit;font-weight:600;text-align:left;cursor:pointer}
+.oq-client-select:hover,.oq-client-select[aria-pressed="true"]{color:#075cf5;text-decoration:underline;text-underline-offset:4px}
+.oq-stage-counts span.error{background:#fef2f2;color:#dc2626}
+.oq-task-tabs{display:flex;gap:10px;margin:0 0 20px;flex-wrap:wrap}
+.oq-task-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.oq-task-metrics .oq-card{display:flex;gap:16px;align-items:center;margin:0;color:#075cf5}
+.oq-task-metrics span{display:block;color:#64748b}.oq-task-metrics strong{font-size:28px;color:#13284a}
+.oq-task-title{min-width:180px;max-width:420px;white-space:normal;overflow-wrap:anywhere}.oq-task-title p{margin:6px 0;font-size:13px;color:#64748b;white-space:pre-wrap}
+.oq-profile-card{padding:20px!important;border:1px solid #e4e6fc!important;background:linear-gradient(140deg,#fff,#fbfbff)!important;box-shadow:0 8px 24px #3c35ab08!important}
+.oq-profile-heading{display:flex;align-items:center;gap:14px;border-radius:12px;background:linear-gradient(110deg,#f6f5ff,#fff);padding:12px}
+.oq-profile-heading>span{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#e9e7ff;color:#4031dd}
+.oq-profile-heading h2,.oq-profile-heading p{margin:0!important}.oq-profile-heading p{font-size:12px;margin-top:5px!important}
+.oq-profile-identity{display:flex;gap:16px;align-items:center;margin:24px 0}.oq-profile-avatar{display:grid;place-items:center;flex-shrink:0;width:72px;height:72px;border-radius:50%;background:#e5e2ff;color:#3826d6;font-size:30px;font-weight:700}
+.oq-profile-identity h3,.oq-profile-identity p{margin:0}.oq-profile-identity p{text-transform:capitalize;font-size:13px;margin-top:6px;color:#64748b}.oq-profile-identity .oq-button{margin-left:auto}
+.oq-profile-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0}.oq-profile-details>div{display:flex;gap:14px;padding:16px;border-radius:12px;background:#f5f6fc;align-items:center;min-width:0}.oq-profile-details dt{font-size:12px;color:#64748b}.oq-profile-details dd{margin:5px 0 0;font-size:14px;font-weight:600;overflow-wrap:anywhere}
+@media(max-width:640px){.oq-task-metrics{grid-template-columns:1fr}.oq-profile-details{grid-template-columns:1fr}.oq-profile-identity{flex-wrap:wrap}.oq-profile-identity .oq-button{margin:0;width:100%}}
+
+.oq-client-id{display:block;background:none;border:0;padding:4px 0 0;color:#64748b;font:inherit;font-size:13px;cursor:pointer;text-align:left}.oq-client-id:hover{color:#075cf5;text-decoration:underline;text-underline-offset:4px}
+/* Completed milestones fill their outgoing connector from left to right. */
+.oq-workflow-dashboard .oq-stage-counts>div:not(:last-child)::before{
+  content:"";position:absolute;left:65%;top:18px;width:70%;height:2px;
+  background:#075cf5;z-index:1;pointer-events:none;
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform 600ms cubic-bezier(.22,.8,.25,1);
+}
+.oq-workflow-dashboard .oq-stage-counts>div.is-complete:not(:last-child)::before{
+  transform:scaleX(1);animation:oq-workflow-line-fill 600ms cubic-bezier(.22,.8,.25,1) both;
+}
+@keyframes oq-workflow-line-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(prefers-reduced-motion:reduce){
+  .oq-workflow-dashboard .oq-stage-counts>div:not(:last-child)::before{transition:none;animation:none!important}
+}

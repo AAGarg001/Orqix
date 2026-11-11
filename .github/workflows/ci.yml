@@ -1,0 +1,35 @@
+name: Verify platform
+on: [push, pull_request]
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    env:
+      WORKER_RUNTIME: "local"
+      METADATA_STORE: "memory"
+      PYTHON_EXECUTABLE: "python"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Prepare private CI environment
+        env:
+          CI_ENV_FILE: ${{ secrets.CI_ENV_FILE }}
+        shell: bash
+        run: |
+          umask 077
+          printf '%s' "$CI_ENV_FILE" > .env
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r workers/requirements.txt
+      - run: sudo apt-get update && sudo apt-get install -y python3-tk
+      - run: python -m pytest workers/tests -q
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - run: docker build -t cpcb-worker:local -f workers/Dockerfile .

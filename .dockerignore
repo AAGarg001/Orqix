@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+**/dist
+.git
+.env
+.env.*
+runtime
+scraped_data
+selenium_chrome_profile
+cpcb_cookies.json
+test-results
+playwright-report
+**/__pycache__

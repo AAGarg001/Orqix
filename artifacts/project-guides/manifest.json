@@ -1,0 +1,530 @@
+[
+  {
+    "phase": 1,
+    "group": "Access",
+    "title": "Admin Login",
+    "route": "/admin/login",
+    "description": "Management access starts with a secure staff account. Admin privileges and account status are checked by the server.",
+    "file": "001.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Management Dashboard",
+    "route": "/dashboard",
+    "description": "Organization workload, client assignments and current workflow progress are summarized from permitted records.",
+    "file": "002.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "User Management",
+    "route": "/admin/users",
+    "description": "Create and maintain staff identities, roles, departments, team membership and reporting managers.",
+    "file": "003.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Team Management",
+    "route": "/admin/teams",
+    "description": "Organize employees into teams with department, lead, capacity and visibility settings.",
+    "file": "004.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Departments",
+    "route": "/admin/departments",
+    "description": "Maintain the department directory used by teams and staff profiles.",
+    "file": "005.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Roles & Permissions",
+    "route": "/admin/roles",
+    "description": "Inspect and configure permission policies. Backend checks control management, client access and automation actions.",
+    "file": "006.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Client Allocation",
+    "route": "/admin/client-allocation",
+    "description": "Upload the allocation Excel, validate employee mappings and import client, registration and financial-year assignments.",
+    "file": "007.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Client Organizations",
+    "route": "/admin/organizations",
+    "description": "Manage external client organizations, owners and links to internal clients. This mapping determines client data visibility.",
+    "file": "008.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Subscription Plans",
+    "route": "/admin/subscription-plans",
+    "description": "Maintain plan pricing, service coverage and usage limits for client organizations.",
+    "file": "009.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Client Requests",
+    "route": "/admin/client-requests",
+    "description": "Inspect organization service requests and administrative onboarding records. This is separate from the consultation inbox.",
+    "file": "010.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "SaaS Overview",
+    "route": "/admin/saas-dashboard",
+    "description": "Review organization, subscription and service-request totals from the application database.",
+    "file": "011.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Clients",
+    "route": "/clients",
+    "description": "Browse authorized client and registration assignments and their financial-year workflow states.",
+    "file": "012.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Tasks & Personal To-do",
+    "route": "/tasks",
+    "description": "Managers assign work with a title, description, deadline and employee. Users also maintain private personal to-dos.",
+    "file": "013.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Client Data Publishing",
+    "route": "/axis-dashboard",
+    "description": "Select the client and unit, upload final Excel, preview supported sheets and publish directly. History records publications; consultation requests appear below.",
+    "file": "014.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "ExtractBot",
+    "route": "/bots/extract",
+    "description": "Open Login launches the isolated CPCB session. Complete OTP manually, then use Scrape All and Available. The final workbook is offered for download.",
+    "file": "015.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Data Upload Bot",
+    "route": "/bots/upload",
+    "description": "Choose PWP or PIBO. PIBO branches into Sales or Purchase, and Sales into Domestic or Export. Validate the appropriate Excel and invoice inputs before submission.",
+    "file": "016.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Delete Bot",
+    "route": "/bots/delete",
+    "description": "Prepare a scoped PWP production-record deletion. Record selection, authorization and explicit confirmation protect destructive portal actions.",
+    "file": "017.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Pending Approvals",
+    "route": "/approvals",
+    "description": "Review permitted approval and deletion requests. Visibility follows the configured role and reporting scope.",
+    "file": "018.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Reports & Analytics",
+    "route": "/reports",
+    "description": "View permitted organization or personal workflow statistics and download available reporting formats.",
+    "file": "019.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "AI Assistant",
+    "route": "/ai-assistant",
+    "description": "Ask platform and workflow questions. Provider-dependent responses require configured integration; the assistant does not bypass permissions.",
+    "file": "020.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Audit Logs",
+    "route": "/audit",
+    "description": "Inspect recorded application events, actors and timestamps for management traceability.",
+    "file": "021.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin",
+    "title": "Profile & Settings",
+    "route": "/settings",
+    "description": "View account identity, role and department; use the password-change flow to maintain account access.",
+    "file": "022.png"
+  },
+  {
+    "phase": 1,
+    "group": "Automation details",
+    "title": "PIBO Upload Type",
+    "route": "/bots/upload",
+    "description": "The selection dialog separates Sales from Purchase / Procurement; each workflow uses its own schema.",
+    "file": "023.png"
+  },
+  {
+    "phase": 1,
+    "group": "Automation details",
+    "title": "PIBO Sales Destination",
+    "route": "/bots/upload",
+    "description": "Select Domestic or Export before choosing the corresponding source files.",
+    "file": "024.png"
+  },
+  {
+    "phase": 1,
+    "group": "Client operations",
+    "title": "Consultation Reply",
+    "route": "/axis-dashboard",
+    "description": "Read the client topic and question, then reply with In Progress, Awaiting Client or Resolved. Replies appear in the same client-side consultation thread.",
+    "file": "025.png"
+  },
+  {
+    "phase": 1,
+    "group": "Internal user",
+    "title": "User Login",
+    "route": "/login",
+    "description": "Employees and managers sign in here. The server applies role and client-assignment permissions.",
+    "file": "026.png"
+  },
+  {
+    "phase": 1,
+    "group": "Internal user",
+    "title": "Management Dashboard",
+    "route": "/dashboard",
+    "description": "Organization workload, client assignments and current workflow progress are summarized from permitted records.",
+    "file": "027.png"
+  },
+  {
+    "phase": 1,
+    "group": "Internal user",
+    "title": "Clients",
+    "route": "/clients",
+    "description": "Browse authorized client and registration assignments and their financial-year workflow states.",
+    "file": "028.png"
+  },
+  {
+    "phase": 1,
+    "group": "Internal user",
+    "title": "Tasks & Personal To-do",
+    "route": "/tasks",
+    "description": "Managers assign work with a title, description, deadline and employee. Users also maintain private personal to-dos.",
+    "file": "029.png"
+  },
+  {
+    "phase": 1,
+    "group": "Internal user",
+    "title": "Client Data Publishing",
+    "route": "/axis-dashboard",
+    "description": "Select the client and unit, upload final Excel, preview supported sheets and publish directly. History records publications; consultation requests appear below.",
+    "file": "030.png"
+  },
+  {
+    "phase": 1,
+    "group": "Internal user",
+    "title": "ExtractBot",
+    "route": "/bots/extract",
+    "description": "Open Login launches the isolated CPCB session. Complete OTP manually, then use Scrape All and Available. The final workbook is offered for download.",
+    "file": "031.png"
+  },
+  {
+    "phase": 1,
+    "group": "Internal user",
+    "title": "Data Upload Bot",
+    "route": "/bots/upload",
+    "description": "Choose PWP or PIBO. PIBO branches into Sales or Purchase, and Sales into Domestic or Export. Validate the appropriate Excel and invoice inputs before submission.",
+    "file": "032.png"
+  },
+  {
+    "phase": 1,
+    "group": "Internal user",
+    "title": "Delete Bot",
+    "route": "/bots/delete",
+    "description": "Prepare a scoped PWP production-record deletion. Record selection, authorization and explicit confirmation protect destructive portal actions.",
+    "file": "033.png"
+  },
+  {
+    "phase": 1,
+    "group": "Internal user",
+    "title": "Reports & Analytics",
+    "route": "/reports",
+    "description": "View permitted organization or personal workflow statistics and download available reporting formats.",
+    "file": "034.png"
+  },
+  {
+    "phase": 1,
+    "group": "Internal user",
+    "title": "Profile & Settings",
+    "route": "/settings",
+    "description": "View account identity, role and department; use the password-change flow to maintain account access.",
+    "file": "035.png"
+  },
+  {
+    "phase": 1,
+    "group": "Manager",
+    "title": "Manager Tasks",
+    "route": "/tasks",
+    "description": "The manager can assign tasks to authorized employees with a deadline and follow progress. Personal to-dos remain separate.",
+    "file": "036.png"
+  },
+  {
+    "phase": 1,
+    "group": "Manager",
+    "title": "Manager Approvals",
+    "route": "/approvals",
+    "description": "Managers see requests within their reporting scope. No fabricated portal job or approval result is shown.",
+    "file": "037.png"
+  },
+  {
+    "phase": 2,
+    "group": "Access",
+    "title": "Client Login",
+    "route": "/client/login",
+    "description": "External clients use their separate organization login. BOT controls and internal administration are not available in this portal.",
+    "file": "038.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client portal",
+    "title": "Business Dashboard",
+    "route": "/client/dashboard",
+    "description": "Published workbook data drives certificate quantities, procurement charts, expiry distribution and source refresh information.",
+    "file": "039.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client portal",
+    "title": "My Companies & Units",
+    "route": "/client/companies",
+    "description": "Browse linked companies, units and registrations. Filter the scope and compare published quantities without counting duplicate logins twice.",
+    "file": "040.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client portal",
+    "title": "Certificate Inventory",
+    "route": "/client/certificates",
+    "description": "Browse Available-sheet certificate records, categories, processing types, quantities and validity. Filters and pagination support record exploration.",
+    "file": "041.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client portal",
+    "title": "Expiry Monitoring",
+    "route": "/client/expiry",
+    "description": "View validity windows and upcoming certificate expiry quantities. This is informational monitoring; certificate action/review requests have been removed.",
+    "file": "042.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client portal",
+    "title": "Procurement Analytics",
+    "route": "/client/procurement",
+    "description": "Analyze Procurement data by supplier, registration type, category, unit and financial year. Export Excel or a branded PDF with matching procurement records.",
+    "file": "043.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client portal",
+    "title": "Reconciliation",
+    "route": "/client/reconciliation",
+    "description": "Compare Procurement Summary and detail totals for the same financial year and category. Differences are observations, not confirmed errors; missing-field issue tables are not shown.",
+    "file": "044.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client portal",
+    "title": "SPOC & Advisory Support",
+    "route": "/client/my-spoc",
+    "description": "See assigned contacts and reporting managers. Submit a topic and question through Request Consultation, then read staff replies and track status.",
+    "file": "045.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client portal",
+    "title": "Reports & Management Insights",
+    "route": "/client/reports",
+    "description": "Download reports generated from the active published scope. PDF downloads support an optional company logo; source timestamps and report definitions provide context.",
+    "file": "046.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client portal",
+    "title": "Notifications",
+    "route": "/client/notifications",
+    "description": "Read published-data, certificate and consultation updates. Consultation replies link back to SPOC & Advisory Support.",
+    "file": "047.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client portal",
+    "title": "Subscription & Billing",
+    "route": "/client/subscriptions",
+    "description": "Review plan and billing information. Razorpay sandbox checkout is separate from live entitlement; missing provider configuration is shown honestly.",
+    "file": "048.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client portal",
+    "title": "Settings & Data Governance",
+    "route": "/client/settings",
+    "description": "Inspect organization identity, data coverage, access permissions, retention and reporting preferences.",
+    "file": "049.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client workflow",
+    "title": "Request Consultation",
+    "route": "/client/my-spoc",
+    "description": "Enter the subject, topic, company, unit, question and preferred date. The internal consultation inbox receives the request for authorized follow-up.",
+    "file": "050.png"
+  },
+  {
+    "phase": 2,
+    "group": "Client workflow",
+    "title": "PDF Branding & Download",
+    "route": "/client/reports",
+    "description": "Optionally upload a company PNG/JPEG logo, or download without one. The generated report includes A A GARG & CO branding and the selected source scope.",
+    "file": "051.png"
+  },
+  {
+    "phase": 2,
+    "group": "Supporting pages",
+    "title": "Portal Accounts",
+    "route": "/client/accounts",
+    "description": "Manage client portal account groupings. One organization can have multiple accounts and registrations across supported portal types.",
+    "file": "052.png"
+  },
+  {
+    "phase": 2,
+    "group": "Supporting pages",
+    "title": "CPCB Registrations",
+    "route": "/client/cpcb-ids",
+    "description": "Maintain unit registration IDs and financial years. Verified registration ownership and organization scope govern access.",
+    "file": "053.png"
+  },
+  {
+    "phase": 2,
+    "group": "Supporting pages",
+    "title": "Client Documents",
+    "route": "/client/documents",
+    "description": "Upload and manage permitted supporting documents within configured file and storage limits.",
+    "file": "054.png"
+  },
+  {
+    "phase": 2,
+    "group": "Supporting pages",
+    "title": "Subscription Usage",
+    "route": "/client/subscriptions/usage",
+    "description": "Inspect configured service allowances and usage. Availability follows the organization contract.",
+    "file": "055.png"
+  },
+  {
+    "phase": 2,
+    "group": "Supporting pages",
+    "title": "Plan Catalog",
+    "route": "/client/subscriptions/plans",
+    "description": "Inspect published commercial plans and available term options. No purchase is initiated for documentation.",
+    "file": "056.png"
+  },
+  {
+    "phase": 2,
+    "group": "Supporting pages",
+    "title": "Billing Details",
+    "route": "/client/billing/details",
+    "description": "Maintain the organization billing contact and billing identity used by supported financial workflows.",
+    "file": "057.png"
+  },
+  {
+    "phase": 2,
+    "group": "Supporting pages",
+    "title": "Activity History",
+    "route": "/client/activity",
+    "description": "View organization activity records and timestamps for authorized client operations.",
+    "file": "058.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin forms",
+    "title": "Create User",
+    "route": "/admin/users",
+    "description": "Set staff identity, team, department, role and reporting manager. A one-time password setup flow follows creation; passwords are not shared in this guide.",
+    "file": "059.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin forms",
+    "title": "Create Team",
+    "route": "/admin/teams",
+    "description": "Define the team code, department, lead and operating settings before assigning employees.",
+    "file": "060.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin forms",
+    "title": "Create Department",
+    "route": "/admin/departments",
+    "description": "Maintain reusable department names and codes for user and team records.",
+    "file": "061.png"
+  },
+  {
+    "phase": 1,
+    "group": "Admin forms",
+    "title": "Allocation Preview",
+    "route": "/admin/client-allocation",
+    "description": "Review parsed assignment rows and employee mappings before import. Re-import behavior protects existing mappings and avoids duplicate assignment records.",
+    "file": "062.png"
+  },
+  {
+    "phase": 1,
+    "group": "Client operations",
+    "title": "Workbook Preview & Publish",
+    "route": "/axis-dashboard",
+    "description": "The final workbook is ready for direct publication after parsing. Select retention and publish; no separate manager approval or review-note checkbox is required.",
+    "file": "063.png"
+  },
+  {
+    "phase": 1,
+    "group": "Manager",
+    "title": "Assign Employee Task",
+    "route": "/tasks",
+    "description": "Choose an authorized employee and enter title, description, priority and deadline. The assigned task appears in that employee Tasks page.",
+    "file": "064.png"
+  },
+  {
+    "phase": 1,
+    "group": "Internal user",
+    "title": "Create Personal To-do",
+    "route": "/tasks",
+    "description": "Employees can create personal reminders and track their own task status independently of manager-assigned work.",
+    "file": "065.png"
+  },
+  {
+    "phase": 1,
+    "group": "Automation details",
+    "title": "Delete Bot Setup",
+    "route": "/bots/delete",
+    "description": "Choose the supported production year before logging into the scoped portal session. This screenshot does not execute a portal deletion.",
+    "file": "066.png"
+  }
+]

@@ -1,0 +1,21 @@
+node_modules/
+.npm-cache/
+dist/
+.env
+.env.*
+!.env.example
+!**/.env.example
+__pycache__/
+.pytest_cache/
+.venv/
+playwright-report/
+test-results/
+runtime/
+scraped_data/
+selenium_chrome_profile/
+cpcb_cookies.json
+*.log
+
+# Local database credentials
+mongodb atlas database details.txt
+
