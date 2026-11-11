@@ -52,4 +52,15 @@ if (
     "MongoDB metadata store requires a valid MONGODB_URI in .env.",
   );
 }
-if(process.env.NODE_ENV==='production'&&(config.METADATA_STORE!=='mongodb'||!config.COOKIE_SECURE||!config.PUBLIC_ORIGIN.startsWith('https://')||!config.SPACES_BUCKET||!config.SPACES_ACCESS_KEY||!config.SPACES_SECRET_KEY))throw new Error('Production requires MongoDB, HTTPS secure cookies and private Spaces credentials.');
+if (process.env.NODE_ENV === "production") {
+  const problems: string[] = [];
+  if (config.METADATA_STORE !== "mongodb") problems.push("METADATA_STORE must be mongodb");
+  if (!config.COOKIE_SECURE) problems.push("COOKIE_SECURE must be true");
+  if (!config.PUBLIC_ORIGIN.startsWith("https://")) problems.push("PUBLIC_ORIGIN must use https://");
+  for (const key of ["SPACES_BUCKET", "SPACES_ACCESS_KEY", "SPACES_SECRET_KEY"] as const) {
+    if (!config[key]?.trim()) problems.push(`${key} is missing`);
+  }
+  if (problems.length) {
+    throw new Error(`Production configuration error: ${problems.join("; ")}. Update the Render service Environment settings and redeploy.`);
+  }
+}
