@@ -10,12 +10,21 @@ import { config } from "../config.js";
 import { PrivateFiles } from "./files.js";
 
 // Run against an isolated real database; never use the application's Atlas URI.
-describe.runIf(!!process.env.MONGOD_BINARY)("MongoDB private files", () => {
+describe.runIf(!!process.env.MONGOD_BINARY || !!process.env.MONGODB_TEST_URI)("MongoDB private files", () => {
   let processHandle: ChildProcess;
   let directory: string;
   const originalStorage = config.PRIVATE_FILE_STORAGE;
 
   beforeAll(async () => {
+    if (process.env.MONGODB_TEST_URI) {
+      const uri = new URL(process.env.MONGODB_TEST_URI);
+      if (uri.protocol !== "mongodb:" || !["127.0.0.1", "localhost"].includes(uri.hostname))
+        throw new Error("GridFS tests require an isolated loopback MongoDB service.");
+      uri.pathname = `/orqix_gridfs_test_${randomBytes(12).toString("hex")}`;
+      await mongoose.connect(uri.toString(), { serverSelectionTimeoutMS: 20000 });
+      config.PRIVATE_FILE_STORAGE = "mongodb";
+      return;
+    }
     directory = await mkdtemp(path.join(tmpdir(), "orqix-gridfs-test-"));
     const server = createServer();
     await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -34,6 +43,7 @@ describe.runIf(!!process.env.MONGOD_BINARY)("MongoDB private files", () => {
 
   afterAll(async () => {
     config.PRIVATE_FILE_STORAGE = originalStorage;
+    if (mongoose.connection.readyState === 1) await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
     if (processHandle && processHandle.exitCode === null) {
       await new Promise<void>((resolve) => {

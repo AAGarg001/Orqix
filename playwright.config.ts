@@ -1,6 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests/e2e",
+  // Documentation capture seeds the same fixture identities as the regression
+  // suites. Run it separately with playwright.docs.config.ts on a fresh server.
+  testIgnore: "**/documentation-capture.spec.ts",
   timeout: 60000,
   expect: { timeout: 10000 },
   fullyParallel: false,
