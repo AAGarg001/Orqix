@@ -96,6 +96,8 @@ def browser(allow_new=True):
         raise RuntimeError("Session unavailable")
     legacy.DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
     options = webdriver.ChromeOptions()
+    # CPCB can keep analytics/background resources open after its form is ready.
+    options.page_load_strategy = "eager"
     local = os.environ.get("WORKER_RUNTIME") == "local"
     if not local:
         options.binary_location = os.environ["CHROME_BINARY"]

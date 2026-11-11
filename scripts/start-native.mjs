@@ -37,12 +37,13 @@ display.on('exit', () => { if (!process.argv.includes('--check') && !process.arg
 if (process.argv.includes('--check')) {
   const work = await mkdtemp(path.join(tmpdir(), 'orqix-native-check-'));
   try {
-    await promisify(execFile)(process.env.PYTHON_EXECUTABLE, ['smoke_browser.py'], {
-      cwd: path.join(root, 'workers'), timeout: 90000,
+    const check = await promisify(execFile)(process.env.PYTHON_EXECUTABLE, ['smoke_browser.py'], {
+      cwd: path.join(root, 'workers'), timeout: 180000,
       env: { PATH: process.env.PATH, LANG: 'C.UTF-8', LD_LIBRARY_PATH: process.env.LD_LIBRARY_PATH, DISPLAY: process.env.DISPLAY,
-        WORKER_RUNTIME: 'hosted', CHROME_BINARY: process.env.CHROME_BINARY, CHROMEDRIVER_PATH: process.env.CHROMEDRIVER_PATH,
+        WORKER_RUNTIME: 'hosted', PORTAL_PROBE: 'true', CHROME_BINARY: process.env.CHROME_BINARY, CHROMEDRIVER_PATH: process.env.CHROMEDRIVER_PATH,
         WORK_DIR: work, LEGACY_SCRIPT: path.join(root, 'commonportalscraper separate Available.py'), OPERATIONS_SCRIPT: path.join(root, 'commonportalpwpscraper 2.1.py') },
     });
+    for (const line of check.stdout.split('\n')) if (line.startsWith('PORTAL_PROBE_RESULT=')) console.log(line);
     console.log('Native visible Chromium check passed.');
   } finally { display.kill(); await rm(work, { recursive: true, force: true }); }
 } else if (process.argv.includes('--smoke')) {

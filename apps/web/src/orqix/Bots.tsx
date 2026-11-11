@@ -97,7 +97,7 @@ export function BotPage({
       if (!assignment)
         throw new Error("Select an authorized client and CPCB ID.");
       if (!password) throw new Error("Enter the CPCB password.");
-      const r = await post<{ job: Job }>("/jobs", {
+      const r = job?.status === "awaiting_otp" ? { job } : await post<{ job: Job }>("/jobs", {
         name: `${kind === "extract" ? "ExtractBot" : kind === "upload" ? "Upload Bot" : "Delete Bot"} · ${assignment.client?.name}`,
         mode: "all",
         assignmentId,
@@ -254,7 +254,7 @@ export function BotPage({
                 !assignment ||
                 !password ||
                 (!!job &&
-                  ["starting", "awaiting_otp", "ready", "running"].includes(
+                  ["starting", "ready", "running"].includes(
                     job.status,
                   ))
               }

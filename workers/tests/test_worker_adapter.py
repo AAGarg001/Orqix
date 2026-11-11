@@ -111,6 +111,7 @@ def test_native_mode_uses_visible_chrome_and_a_private_job_profile(worker, monke
     monkeypatch.setattr(module.webdriver, "Chrome", chrome)
     driver = module.browser()
     assert "service" not in created
+    assert created["options"].page_load_strategy == "eager"
     assert not any("headless" in argument for argument in created["options"].arguments)
     assert f"--user-data-dir={module.legacy.CHROME_PROFILE_DIR}" in created["options"].arguments
     assert module.browser() is driver

@@ -11,6 +11,7 @@ export default function PortalWindow() {
   return <main style={{ padding: 20, maxWidth: 1500, margin: "auto" }}>
     <h1>CPCB portal browser</h1>
     <p>This window controls your private cloud Chrome session. Complete OTP here, then return to ORQIX to verify login and start extraction.</p>
+    {job?.error ? <p role="alert">{job.error}</p> : job ? <p>{job.stage}</p> : null}
     {query.error ? <p role="alert">{query.error.message}</p> : !id || !job || job.status === "starting" ? <p role="status">Preparing your portal session…</p>
       : ["cancelled", "failed", "completed", "partial"].includes(job.status) ? <p role="status">{job.stage}. Return to ORQIX for the next action.</p>
       : <BrowserView id={job.id} running={job.status === "running"} />}

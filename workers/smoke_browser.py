@@ -1,6 +1,7 @@
 """Exercise the real visible worker browser and frame controls offline."""
 import os
 import sys
+import json
 # Render Python does not include Tk; verify that desktop-only UI is optional.
 sys.modules["tkinter"] = None
 from fastapi.testclient import TestClient
@@ -21,7 +22,28 @@ try:
     driver.find_element("id", "otp").click()
     assert client.post("/browser/input", headers=headers, json={"action": "text", "text": "123456"}).status_code == 200
     assert driver.find_element("id", "otp").get_attribute("value") == "123456"
+    # Exercise the actual original script's navigation and autofill function.
+    original_url = legacy.LOGIN_URL
+    try:
+        legacy.LOGIN_URL = "data:text/html,<input placeholder='Enter CEPR User ID'><input placeholder='Password' type='password'>"
+        legacy.open_login("offline-probe", "offline-password")
+        assert driver.find_element(legacy.By.XPATH, legacy.USER_ID_XPATH).get_attribute("value") == "offline-probe"
+        assert driver.find_element(legacy.By.XPATH, legacy.PASSWORD_XPATH).get_attribute("value") == "offline-password"
+    finally:
+        legacy.LOGIN_URL = original_url
     print("Native visible worker Chromium smoke passed.")
+    if os.environ.get("PORTAL_PROBE") == "true":
+        # Public login form only: no real credentials, OTP, extraction or writes.
+        result = {"ok": False, "loginUrl": legacy.LOGIN_URL}
+        try:
+            driver.set_page_load_timeout(45)
+            driver.get(legacy.LOGIN_URL)
+            legacy.WebDriverWait(driver, 20).until(legacy.EC.visibility_of_element_located((legacy.By.XPATH, legacy.USER_ID_XPATH)))
+            result["ok"] = bool(driver.find_elements(legacy.By.XPATH, legacy.PASSWORD_XPATH))
+            result["reason"] = "login_form_visible" if result["ok"] else "password_field_missing"
+        except Exception as error:
+            result["reason"] = type(error).__name__
+        print("PORTAL_PROBE_RESULT=" + json.dumps(result))
 finally:
     if legacy.driver:
         legacy.driver.quit()

@@ -213,8 +213,15 @@ export class Runner {
     return response;
   }
   async login(id: string, credentials: { userId: string; password: string }) {
-    await this.call(id, "/login", credentials);
+    await this.update(id, { stage: "Opening CPCB portal and filling the selected account credentials…", error: "" });
+    try {
+      await this.call(id, "/login", credentials);
+    } catch (error) {
+      await this.update(id, { stage: "CPCB login could not open. Retry Open Login for this session.", error: "CPCB login could not open. Retry Open Login; if it still fails, the cloud browser may be unable to reach the portal." });
+      throw error;
+    }
     await this.update(id, {
+      error: "",
       stage:
         "CPCB portal opened. Enter the client OTP in the browser, click portal Login, then Verify completed OTP login.",
     });
