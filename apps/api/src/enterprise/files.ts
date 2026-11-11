@@ -11,6 +11,7 @@ import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import mongoose from "mongoose";
 import { config } from "../config.js";
+import { CloudinaryFiles } from "./cloudinary-files.js";
 export function validateExcelArchive(buffer: Buffer) {
   let end = -1;
   for (let i = buffer.length - 22; i >= Math.max(0, buffer.length - 65557); i--)
@@ -59,8 +60,9 @@ export class PrivateFiles {
       throw Object.assign(new Error("MongoDB private storage is unavailable."), { status: 503 });
     return new mongoose.mongo.GridFSBucket(db, { bucketName: "orqix_private_files" });
   }
-  async delete(file: {key:string;storage?:unknown}) {
+  async delete(file: {key:string;storage?:unknown;cloudinaryExtension?:unknown}) {
     if (!/^[a-f0-9-]{36}$/.test(file.key)) throw new Error('Invalid private file key');
+    if (file.storage === "cloudinary") return new CloudinaryFiles().delete(file.key, file.cloudinaryExtension);
     if (file.storage === "mongodb") {
       const bucket = this.bucket();
       const stored = await bucket.find({ filename: file.key }).next();
@@ -90,7 +92,10 @@ export class PrivateFiles {
   async put(buffer: Buffer, name: string, contentType: string) {
     const key = randomUUID();
     const storage = config.PRIVATE_FILE_STORAGE;
-    if (storage === "mongodb") {
+    const cloudinaryExtension = path.extname(name).slice(1).toLowerCase();
+    if (storage === "cloudinary") {
+      await new CloudinaryFiles().put(key, buffer, cloudinaryExtension);
+    } else if (storage === "mongodb") {
       const upload = this.bucket().openUploadStream(key, {
         metadata: { name: path.basename(name), contentType },
       });
@@ -128,11 +133,13 @@ export class PrivateFiles {
       contentType,
       size: buffer.length,
       storage,
+      ...(storage === "cloudinary" ? { cloudinaryExtension } : {}),
     };
   }
-  async get(file: { key: string; storage?: unknown }) {
+  async get(file: { key: string; storage?: unknown; cloudinaryExtension?: unknown }) {
     if (!/^[a-f0-9-]{36}$/.test(file.key))
       throw new Error("Invalid private file key");
+    if (file.storage === "cloudinary") return new CloudinaryFiles().get(file.key, file.cloudinaryExtension);
     if (file.storage === "mongodb") {
       const chunks: Buffer[] = [];
       for await (const chunk of this.bucket().openDownloadStreamByName(file.key))

@@ -19,10 +19,13 @@ export const config = z
     PUBLIC_ORIGIN: z.string().url().default("http://localhost:5173"),
     MONGODB_URI: z.string().optional(),
     LOCAL_PRIVATE_DIRECTORY:z.string().default('runtime/private-files'),
-    PRIVATE_FILE_STORAGE: z.enum(["mongodb", "spaces", "local"]).default(
+    PRIVATE_FILE_STORAGE: z.enum(["mongodb", "spaces", "cloudinary", "local"]).default(
       process.env.SPACES_BUCKET?.trim() ? "spaces" : process.env.NODE_ENV === "test" ? "local" : "mongodb",
     ),
     ENFORCE_ASSIGNMENTS: bool("true"),
+    CLOUDINARY_CLOUD_NAME: z.string().regex(/^[a-zA-Z0-9_-]+$/).optional(),
+    CLOUDINARY_API_KEY: z.string().optional(),
+    CLOUDINARY_API_SECRET: z.string().optional(),
     SPACES_BUCKET: z.string().optional(),
     SPACES_REGION: z.string().default("blr1"),
     SPACES_ENDPOINT: z.string().url().optional(),
@@ -60,9 +63,14 @@ if (process.env.NODE_ENV === "production") {
   if (config.METADATA_STORE !== "mongodb") problems.push("METADATA_STORE must be mongodb");
   if (!config.COOKIE_SECURE) problems.push("COOKIE_SECURE must be true");
   if (!config.PUBLIC_ORIGIN.startsWith("https://")) problems.push("PUBLIC_ORIGIN must use https://");
-  if (config.PRIVATE_FILE_STORAGE === "local") problems.push("PRIVATE_FILE_STORAGE must be mongodb or spaces in production");
+  if (config.PRIVATE_FILE_STORAGE === "local") problems.push("PRIVATE_FILE_STORAGE must be mongodb, cloudinary or spaces in production");
   if (config.PRIVATE_FILE_STORAGE === "spaces") {
     for (const key of ["SPACES_BUCKET", "SPACES_ACCESS_KEY", "SPACES_SECRET_KEY"] as const) {
+      if (!config[key]?.trim()) problems.push(`${key} is missing`);
+    }
+  }
+  if (config.PRIVATE_FILE_STORAGE === "cloudinary") {
+    for (const key of ["CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET"] as const) {
       if (!config[key]?.trim()) problems.push(`${key} is missing`);
     }
   }

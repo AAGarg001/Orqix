@@ -310,6 +310,8 @@ export function intelligenceRouter(service: EnterpriseService) {
         mongo: !service.store.memory,
         redis: !!config.REDIS_URL,
         spaces: !!config.SPACES_BUCKET,
+        privateFileStorage: config.PRIVATE_FILE_STORAGE,
+        cloudinary: !!(config.CLOUDINARY_CLOUD_NAME && config.CLOUDINARY_API_KEY && config.CLOUDINARY_API_SECRET),
         graph: !!(
           config.GRAPH_CLIENT_ID &&
           config.GRAPH_CLIENT_SECRET &&
