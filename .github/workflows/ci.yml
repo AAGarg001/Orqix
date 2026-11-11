@@ -10,7 +10,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   checks:
-    runs-on: ubuntu-latest
+    # MongoDB 8 is incompatible with the newer kernel on ubuntu-latest.
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
       WORKER_RUNTIME: "local"
