@@ -93,6 +93,7 @@ test('admin creates reporting hierarchy, imports assignments, employee runs scop
  await page.getByRole('button',{name:'Continue to login',exact:true}).click();
  await expect(page.getByRole('dialog')).toHaveCount(0);
  await page.getByRole('button',{name:'Profile menu',exact:true}).click();await page.getByRole('button',{name:'Sign out',exact:true}).click();
+ await expect(page).toHaveURL(origin+'/login');
  await login(page,'riya@orqix.test','EmployeeTest!2026Secure');
  await expect(page.getByRole('link',{name:'User Management',exact:true})).toHaveCount(0);
  expect((await page.request.get('/api/platform/users')).status()).toBe(403);
@@ -146,6 +147,7 @@ test('admin creates reporting hierarchy, imports assignments, employee runs scop
  await page.getByRole('combobox',{name:'Filter',exact:true}).selectOption('COMPLETED');
  await expect(page.getByText('My personal follow up',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Profile menu',exact:true}).click();await page.getByRole('button',{name:'Sign out',exact:true}).click();
+ await expect(page).toHaveURL(origin+'/login');
  await login(page,'raj@orqix.test','EmployeeTest!2026Secure');
  await page.getByRole('link',{name:'Tasks',exact:true}).click();
  await page.getByRole('button',{name:'Assign Task',exact:true}).click();
@@ -160,6 +162,7 @@ test('admin creates reporting hierarchy, imports assignments, employee runs scop
  await page.getByRole('button',{name:'My To-do',exact:true}).click();
  await expect(page.getByText('My personal follow up',{exact:true})).toHaveCount(0);
  await page.getByRole('button',{name:'Profile menu',exact:true}).click();await page.getByRole('button',{name:'Sign out',exact:true}).click();
+ await expect(page).toHaveURL(origin+'/login');
  await login(page,'riya@orqix.test','EmployeeTest!2026Secure');
  await page.getByRole('link',{name:'Tasks',exact:true}).click();
  await expect(page.getByText('Review Uflex delivery',{exact:true})).toBeVisible();
