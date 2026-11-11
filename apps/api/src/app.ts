@@ -324,6 +324,7 @@ export function createApp(store: Store, runner: Runner) {
   app.get("/api/jobs/:id/browser/frame", async (_req, res) => {
     const job = browserAccess(res);
     const image = await runner.call(job.id, "/browser/frame");
+    if (image.status === 204) { res.set("Cache-Control", "no-store").status(204).end(); return; }
     res.set("Cache-Control", "no-store").type("image/png").send(Buffer.from(await image.arrayBuffer()));
   });
   app.post("/api/jobs/:id/browser/input", async (req, res) => {

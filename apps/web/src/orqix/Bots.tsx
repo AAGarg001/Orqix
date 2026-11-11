@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -31,7 +31,6 @@ import {
   PageHeader,
   StatusBadge,
 } from "./ui";
-const BrowserView = lazy(() => import("../BrowserView"));
 const useData = <T,>(path: string, enabled = true) =>
   useQuery({
     queryKey: [path],
@@ -57,7 +56,6 @@ export function BotPage({
     [deleteSetup, setDeleteSetup] = useState(false),
     [deleteYear, setDeleteYear] = useState(String(new Date().getFullYear())),
     [password, setPassword] = useState(""),
-    [browser, setBrowser] = useState(false),
     [preview, setPreview] = useState(false);
   const q = useData<{ job: Job }>(`/jobs/${jobId}`, !!jobId),
     job = q.data?.job,
@@ -73,6 +71,12 @@ export function BotPage({
       setJobId(activeJob.id);
     }
   }, [history.data, d.data, jobId, assignmentId, kind, session.user.id, session.user.permissions]);
+  const portalWindow = useRef<Window | null>(null);
+  function openPortalWindow(id?: string) {
+    const url = id ? `/portal-browser/${id}` : "/portal-browser";
+    portalWindow.current = window.open(url, "orqix-portal-browser", "popup,width=1440,height=1000,resizable=yes,scrollbars=yes");
+    if (!portalWindow.current) toast.error("Allow popups for ORQIX, then click Open portal window.");
+  }
   const shownAlerts = useRef(new Set<string>());
   useEffect(()=>{
     if(kind !== 'extract' || !job) return;
@@ -100,6 +104,7 @@ export function BotPage({
         kind,
       });
       setJobId(r.job.id);
+      if (portalWindow.current && !portalWindow.current.closed) portalWindow.current.location.replace(`/portal-browser/${r.job.id}`);
       for (let i = 0; i < (session.workerRuntime === "hosted" ? 240 : 90); i++) {
         const { job } = await api<{ job: Job }>(`/jobs/${r.job.id}`);
         if (job.status === "failed") throw new Error(job.error ?? job.stage);
@@ -116,7 +121,7 @@ export function BotPage({
     },
     onSuccess: () => {
       setPassword("");
-      if (session.workerRuntime !== "local") setBrowser(true);
+      portalWindow.current?.focus();
       toast.success("CPCB login opened. Complete OTP manually.");
       void client.invalidateQueries();
     },
@@ -243,7 +248,7 @@ export function BotPage({
           </label>
           <div className="oq-actions">
             <Button
-              onClick={() => login.mutate()}
+              onClick={() => { if (session.workerRuntime === "hosted") openPortalWindow(); login.mutate(); }}
               disabled={
                 login.isPending ||
                 !assignment ||
@@ -277,7 +282,7 @@ export function BotPage({
             <Monitor size={17} />
             {session.workerRuntime === "local"
               ? "Actual Chrome opens on this backend computer. Enter the client OTP there and finish portal login."
-              : "Complete client OTP in the authenticated remote browser below."}
+              : "Complete client OTP in the separate portal browser window."}
           </div>
         </section>
         <section className="oq-card">
@@ -321,9 +326,9 @@ export function BotPage({
           {job &&
           session.workerRuntime !== "local" &&
           ["ready", "awaiting_otp", "running"].includes(job.status) ? (
-            <Button variant="secondary" onClick={() => setBrowser(!browser)}>
+            <Button variant="secondary" onClick={() => openPortalWindow(job.id)}>
               <Monitor size={16} />
-              {browser ? "Hide browser" : "View portal browser"}
+              Open portal window
             </Button>
           ) : null}
           {job &&
@@ -341,13 +346,6 @@ export function BotPage({
           ) : null}
         </section>
       </div>
-      {browser && job && session.workerRuntime !== "local" ? (
-        <section className="oq-card">
-          <Suspense fallback={<p>Loading secure browser…</p>}>
-            <BrowserView id={job.id} running={job.status === "running"} />
-          </Suspense>
-        </section>
-      ) : null}
       {kind === "upload" && job && uploadMode ? (
         <UploadPanel key={`${job.id}:${uploadMode}`} job={job} ready={ready} assignmentId={assignmentId} mode={uploadMode} />
       ) : null}

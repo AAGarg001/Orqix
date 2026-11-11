@@ -53,6 +53,51 @@ def test_worker_authentication_and_verification_preconditions(worker):
     assert client.post("/run", headers=HEADERS, json={"mode": "available"}).status_code == 409
     assert client.get("/artifact", headers=HEADERS).status_code == 410
 
+
+def test_frames_wait_quietly_before_login_and_during_browser_actions(worker):
+    module, client = worker
+    assert client.get("/browser/frame", headers=HEADERS).status_code == 204
+    module.lock.acquire()
+    try:
+        response = client.get("/browser/frame", headers=HEADERS)
+        assert response.status_code == 204
+        assert response.headers["cache-control"] == "no-store"
+    finally:
+        module.lock.release()
+    class StartPage(Driver):
+        current_url = "chrome://newtab/"
+        def get_screenshot_as_png(self):
+            raise AssertionError("The Chrome start page must not be exposed")
+    module.legacy.driver = StartPage()
+    assert client.get("/browser/frame", headers=HEADERS).status_code == 204
+
+
+def test_login_waits_for_inflight_frame_instead_of_failing_busy(worker, monkeypatch):
+    import threading
+    module, client = worker
+    entered, release = threading.Event(), threading.Event()
+    class FrameDriver(Driver):
+        def get_screenshot_as_png(self):
+            entered.set()
+            assert release.wait(3)
+            return b"\x89PNG"
+    module.legacy.driver = FrameDriver()
+    calls = []
+    monkeypatch.setattr(module.legacy, "open_login", lambda user, password: calls.append((user, password)))
+    frame_thread = threading.Thread(target=lambda: client.get("/browser/frame", headers=HEADERS))
+    frame_thread.start()
+    assert entered.wait(3)
+    timer = threading.Timer(.2, release.set)
+    timer.start()
+    try:
+        result = client.post("/login", headers=HEADERS, json={"userId": "fixture", "password": "fixture-password"})
+        assert result.status_code == 200
+        assert calls == [("fixture", "fixture-password")]
+    finally:
+        release.set()
+        frame_thread.join(3)
+        timer.join(3)
+
 def test_native_mode_uses_visible_chrome_and_a_private_job_profile(worker, monkeypatch):
     module, _ = worker
     monkeypatch.setenv("WORKER_RUNTIME", "local")

@@ -101,6 +101,7 @@ const SettingsPage=lazy(()=>import('./Insights').then(m=>({default:m.SettingsPag
 const TaskStatusChart=lazy(()=>import("./TaskStatusChart"));
 const SaasAdmin=lazy(()=>import("../client/SaasAdmin").then(m=>({default:m.SaasAdmin})));
 const ClientApp=lazy(()=>import("../client/ClientApp").then(m=>({default:m.ClientApp})));
+const PortalWindow = lazy(() => import("../PortalWindow"));
 const BrowserView = lazy(() => import("../BrowserView"));
 const useData = <T,>(path: string, enabled = true) =>
   useQuery({
@@ -156,6 +157,7 @@ export function OrqixApp() {
     <>
       <Toaster richColors position="top-right" />
       <Routes>
+        <Route path="/portal-browser/:id?" element={session.data?.user ? <Suspense fallback={<SkeletonLoader/>}><PortalWindow /></Suspense> : <Navigate to="/login" replace />} />
         <Route path="/client/*" element={<Suspense fallback={<SkeletonLoader/>}><ClientApp session={session.data!} onAuthenticated={()=>{void client.invalidateQueries({queryKey:["/me"]});}}/></Suspense>}/>
         <Route path="/setup-password" element={<SetupPassword />} />
         <Route

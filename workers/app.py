@@ -15,6 +15,7 @@ from collections import deque
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlsplit
 
 from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse, Response
@@ -165,9 +166,17 @@ def login_browser():
 @app.get("/browser/frame", dependencies=[Depends(auth)])
 def browser_frame():
     if not lock.acquire(blocking=False):
-        raise HTTPException(409, "Browser is busy")
+        return Response(status_code=204, headers={"Cache-Control": "no-store", "Retry-After": "2"})
     try:
-        image = login_browser().get_screenshot_as_png()
+        if legacy.driver is None:
+            return Response(status_code=204, headers={"Cache-Control": "no-store"})
+        driver = login_browser()
+        # Never show the default Chrome/Google start page as a portal session.
+        location = urlsplit(driver.current_url)
+        hostname = location.hostname or ""
+        if location.scheme in ("chrome", "about") or hostname == "google.com" or hostname.endswith(".google.com"):
+            return Response(status_code=204, headers={"Cache-Control": "no-store"})
+        image = driver.get_screenshot_as_png()
         return Response(image, media_type="image/png", headers={"Cache-Control": "no-store"})
     finally:
         lock.release()
@@ -175,8 +184,8 @@ def browser_frame():
 
 @app.post("/browser/input", dependencies=[Depends(auth)])
 def browser_input(data: BrowserInput):
-    if not lock.acquire(blocking=False):
-        raise HTTPException(409, "Browser is busy")
+    if not lock.acquire(timeout=15):
+        raise HTTPException(409, "Portal is still busy. Wait for the current action to finish.")
     try:
         driver = login_browser()
         if data.action == "click":
@@ -197,7 +206,7 @@ def browser_input(data: BrowserInput):
 @app.post("/login", dependencies=[Depends(auth)])
 def login(credentials: Credentials):
     global verified
-    if not lock.acquire(blocking=False):
+    if not lock.acquire(timeout=15):
         raise HTTPException(409, "Worker is busy")
     try:
         if state["status"] != "awaiting_otp":
@@ -214,7 +223,7 @@ def login(credentials: Credentials):
 
 @app.post("/open", dependencies=[Depends(auth)])
 def open_portal():
-    if not lock.acquire(blocking=False):
+    if not lock.acquire(timeout=15):
         raise HTTPException(409, "Worker is busy")
     try:
         if state["status"] != "awaiting_otp":
@@ -233,7 +242,7 @@ def open_portal():
 @app.post("/verify", dependencies=[Depends(auth)])
 def verify():
     global verified
-    if not lock.acquire(blocking=False):
+    if not lock.acquire(timeout=15):
         raise HTTPException(409, "Worker is busy")
     try:
         if state["status"] != "awaiting_otp":

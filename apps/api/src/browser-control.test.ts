@@ -19,6 +19,13 @@ beforeEach(async () => {
   vi.spyOn(runner, "call").mockImplementation(async (_id, endpoint) => endpoint === "/browser/frame" ? new Response(new Uint8Array([137, 80, 78, 71])) : new Response(JSON.stringify({ ok: true })));
 });
 afterEach(() => { config.WORKER_RUNTIME = original; vi.restoreAllMocks(); });
+it("preserves a temporary no-frame response without sending an empty PNG", async () => {
+  vi.mocked(runner.call).mockResolvedValueOnce(new Response(null, { status: 204 }));
+  const response = await request(app).get(`/api/jobs/${job.id}/browser/frame`).set("Cookie", "session=browser-session");
+  expect(response.status).toBe(204);
+  expect(response.headers["cache-control"]).toBe("no-store");
+  expect(response.headers["content-type"]).toBeUndefined();
+});
 it("requires a current session, preserves private frames and rejects other job owners", async () => {
   expect((await request(app).get(`/api/jobs/${job.id}/browser/frame`)).status).toBe(401);
   const response = await request(app).get(`/api/jobs/${job.id}/browser/frame`).set("Cookie", "session=browser-session");
