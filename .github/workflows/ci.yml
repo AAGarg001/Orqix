@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   checks:
-    # MongoDB 8 is incompatible with the newer kernel on ubuntu-latest.
+    # Keep the native MongoDB test binary on a stable Linux runner.
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
@@ -18,17 +18,6 @@ jobs:
       METADATA_STORE: "memory"
       PYTHON_EXECUTABLE: "python"
       PRIVATE_FILE_STORAGE: "local"
-      MONGODB_TEST_URI: "mongodb://127.0.0.1:27017"
-    services:
-      mongodb:
-        image: mongo:8.0
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -39,6 +28,12 @@ jobs:
           cache: npm
       - run: npm ci --include=dev
       - run: npm run typecheck
+      - name: Install isolated native MongoDB test binary
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/orqix-mongo"
+          curl -fsSL https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu2204-8.0.17.tgz | tar -xz -C "$RUNNER_TEMP/orqix-mongo" --strip-components=1
+          echo "MONGOD_BINARY=$RUNNER_TEMP/orqix-mongo/bin/mongod" >> "$GITHUB_ENV"
       - run: npm test
       - run: npm run build
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
@@ -49,15 +44,10 @@ jobs:
       - run: python -m pytest workers/tests -q
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
-      - run: docker build -t cpcb-worker:local -f workers/Dockerfile .
-      - name: Build Render cloud bot image
-        run: docker build -t orqix-hosted:test -f deploy/render.Dockerfile .
-      - name: Verify real hosted browser runtime
-        run: >-
-          docker run --rm --memory=2g --cpus=1
-          -e NODE_ENV=test -e METADATA_STORE=memory
-          -e PRIVATE_FILE_STORAGE=local -e WORKER_RUNTIME=hosted
-          orqix-hosted:test node scripts/smoke-hosted.mjs
+      - name: Install native cloud browser runtime
+        run: python3 scripts/setup-native.py
+      - name: Verify native Python and headless Chromium
+        run: node scripts/start-native.mjs --smoke
       - name: Save browser failure reports
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

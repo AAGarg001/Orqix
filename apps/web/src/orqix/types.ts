@@ -16,7 +16,7 @@ export type User = {
 };
 export type Session = {
   user: User | null;
-  workerRuntime: "local" | "docker" | "hosted";
+  workerRuntime: "local" | "hosted";
   metadataStore: string;
   retentionMinutes: number;
 };

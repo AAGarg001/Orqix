@@ -1,67 +1,17 @@
-# Render cloud browser runtime
+# Native Render bot
 
-The existing Node runtime cannot start the desktop Python/Chrome worker. Switch
-the existing `Orqix-api` service to the repository Docker runtime after CI passes.
-The frontend stays on Vercel and private documents stay on Cloudinary.
+Use existing service, Free compute, repository AAGarg001/Orqix, branch main.
 
-## Existing service settings
+- Runtime: Node
+- Root Directory: blank
+- Build Command: `bash scripts/render-build.sh`
+- Start Command: `node scripts/start-native.mjs`
+- Health Check: `/api/health`
 
-Render → Settings → Build → Source → Edit → select the same `AAGarg001/Orqix`
-repository and `main`, then Runtime **Docker**. Use:
+Keep NODE_VERSION=22, NODE_ENV=production, PUBLIC_ORIGIN=https://orqix-psi.vercel.app, COOKIE_SECURE=true, METADATA_STORE=mongodb, PRIVATE_FILE_STORAGE=cloudinary, MongoDB URI and Cloudinary credentials in Render environment settings. Preserve proxy and assignment settings. Set job concurrency and jobs per user to 1.
 
-- Root directory / build context: repository root (blank / `.`)
-- Dockerfile: `deploy/render.Dockerfile`
-- Docker command override: blank (the image CMD starts the API)
-- Health check: `/api/health`
-- Auto-deploy: After CI Checks Pass
+The build installs private Python and matching official Chrome for Testing/ChromeDriver, checks libraries and runs a real browser smoke test. The start wrapper sets hosted mode and absolute Python/browser paths. Python workers bind to loopback and use per-job tokens. Workers receive no database or storage credentials.
 
-The existing URL, Atlas and Cloudinary environment settings remain in this
-service. Set these backend environment variables:
+Open Login creates one headless browser. Authenticated users see private screenshots and send clicks, typing, scrolling and keys through the API proxy. Enter OTP manually. Controls lock during automation. Clear session files when finished; one retained session is allowed.
 
-```env
-WORKER_RUNTIME=hosted
-PYTHON_EXECUTABLE=/opt/venv/bin/python
-BROWSER_PUBLIC_ORIGIN=https://orqix-api.onrender.com
-PUBLIC_ORIGIN=https://orqix-psi.vercel.app
-MAX_CONCURRENT_JOBS=1
-MAX_JOBS_PER_USER=1
-COOKIE_SECURE=true
-```
-
-Use one instance. Hosted mode enforces one active browser job per API instance.
-Capacity is limited deliberately; each browser needs Python, Chromium and a
-display. Validate memory on the selected compute plan; Free has 512 MB and 0.1
-CPU and may exhaust memory on real portal pages. The CI smoke test uses 2 GB.
-Do not purchase or upgrade compute without the account owner's approval.
-
-## Login flow and isolation
-
-Each job starts an independent Python supervisor, Xvfb display, browser profile,
-worker token and temporary directory. The Python supervisor only receives its
-worker settings, not Atlas, Cloudinary, payments or mail credentials. Worker
-HTTP, VNC and websockify listen on loopback. Only Node's public API is exposed.
-This is process isolation inside one container, not per-job container isolation.
-
-The browser obtains a 45-second, single-use ticket through the authenticated
-Vercel API proxy. noVNC connects directly to Render via WSS so browser cookies
-do not need cross-site access. Tickets are scoped to the job, owner and current
-login session. The server validates Origin, assignments, permissions and session
-expiry, and disconnects on logout/revocation. Browser controls close when
-automation starts; they cannot modify an extraction in progress.
-
-Cancellation, timeout or backend shutdown terminates the job process group and
-removes its temporary profile/files. A worker watchdog also stops orphaned
-workers. Render restarts invalidate active portal sessions; start a new job.
-
-## Verification
-
-GitHub CI builds the Render image and runs a real worker health check, VNC/RFB
-handshake and headed Chromium against an offline page. No CPCB credentials are
-used. Browser ticket tests cover authentication, ownership, Origin, expiry,
-replay and session revocation. Final extraction against CPCB requires the user
-to enter their actual portal credentials and complete OTP manually.
-
-After deployment `/api/health` should report `workerRuntime: hosted`.
-Open Extract Bot → Open Login → enter credentials → complete OTP in the remote
-browser → Verify OTP login → Extract. Download the resulting workbook before
-the temporary retention period ends.
+Free compute is a limited trial. Browser memory may exceed 512 MB depending on portal content. No paid upgrade is performed. Sleeping/restarting loses active browser sessions. CI verifies native browser startup/input; a full portal extraction requires human OTP.

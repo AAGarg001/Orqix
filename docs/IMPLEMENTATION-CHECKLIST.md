@@ -1,6 +1,6 @@
 # ORQIX implementation checklist
 
-Repository audit (31 October 2026): React 19/Vite 7, Express 5/TypeScript, Mongoose, cookie sessions, SSE, local native-Chrome and Docker/noVNC worker execution. No RBAC, client allocation, approvals or enterprise records existed. Original BOT files match both supplied attachments byte-for-byte. No new ORQIX screenshot files were supplied; follow specified design tokens and routes.
+Repository audit (31 October 2026): React 19/Vite 7, Express 5/TypeScript, Mongoose, cookie sessions, SSE, local native-Chrome and native headless-browser worker execution. No RBAC, client allocation, approvals or enterprise records existed. Original BOT files match both supplied attachments byte-for-byte. No new ORQIX screenshot files were supplied; follow specified design tokens and routes.
 
 ## Source mapping
 
@@ -30,7 +30,7 @@ Checked phases mean their implemented core is covered by local checks, not that 
 - Atlas read-only connection succeeded. Initial live Super Admin provisioning was rejected by automatic approval review as an insufficiently authorized privileged mutation; no account was created. Explicit user approval remains required. Redis and private Spaces still need runtime configuration/verification.
 - Microsoft Graph organizational application credentials/permissions and sender are not supplied.
 - AI provider credentials/model are not supplied.
-- Docker is unavailable on this Windows machine; hosted browser-stream runtime cannot be executed here.
+- Hosted Linux browser runtime is verified in Linux CI.
 - Real CPCB account/OTP and supervised verification are required for authenticated extraction and mutation testing. No live upload/deletion test will be performed automatically.
 
 Plan: extend the existing backend as a modular monolith, add permission/scoping and explicit workflow transitions first, then source-backed BOT adapters, then enterprise UI and external interfaces. Use test-only repositories/adapters for automated tests; production records must use MongoDB. Retain the earlier UI source as a legacy component rather than destroying working extraction code.
@@ -39,7 +39,7 @@ Plan: extend the existing backend as a modular monolith, add permission/scoping 
 
 - [ ] Explicitly authorize and provision first live Super Admin; validate persisted Atlas flows with that account.
 - [ ] Supervised real CPCB OTP, extraction and upload/deletion reconciliation against portal evidence; do not infer success from mocks.
-- [ ] Hosted Docker/noVNC, private Spaces, Redis scheduler, Graph delivery and configured AI model verification.
+- [ ] Hosted native headless-browser, private Spaces, Redis scheduler, Graph delivery and configured AI model verification.
 - [ ] 50-browser load/capacity tests, deployment host credentials, production monitoring, backup/restore drill and storage lifecycle.
 - [ ] Invitation email delivery (secure setup links work), forgot-password self-service delivery, rich employee activity detail and bulk-user operations.
 - [ ] Allocation rollback/correction UI, advanced report breakdowns/filters and scheduled audit exports.

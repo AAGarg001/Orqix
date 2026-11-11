@@ -8,8 +8,13 @@ from decimal import Decimal, InvalidOperation
 from openpyxl import load_workbook
 from pathlib import Path
 from urllib.parse import urlsplit
-import tkinter as tk
-from tkinter import filedialog, messagebox, simpledialog, ttk
+try:
+    import tkinter as tk
+    from tkinter import filedialog, messagebox, simpledialog, ttk
+except ImportError:
+    # The hosted headless worker does not use the desktop GUI.
+    tk = None
+    messagebox = ttk = filedialog = simpledialog = None
 import pandas as pd
 from selenium import webdriver
 from selenium.common.exceptions import ElementClickInterceptedException, StaleElementReferenceException, TimeoutException, WebDriverException

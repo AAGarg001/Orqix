@@ -6,7 +6,6 @@ import { randomUUID } from "node:crypto";
 import { z, ZodError } from "zod";
 import { config } from "./config.js";
 import { allowedOrigin } from "./origin.js";
-import { BrowserTickets } from "./browser-access.js";
 import {
   hashPassword,
   checkPassword,
@@ -41,8 +40,6 @@ const credentials = z.object({
 export function createApp(store: Store, runner: Runner) {
   const downloadCleanup = new Set<string>();
   const app = express();
-  const browserTickets = new BrowserTickets();
-  app.locals.browserTickets = browserTickets;
   const service = new EnterpriseService(new Repository(store.memory), store);
   app.locals.enterprise = service;
   const clients=new ClientService(service), billing=new BillingService(clients);
@@ -317,17 +314,28 @@ export function createApp(store: Store, runner: Runner) {
     next();
   });
   app.get("/api/jobs/:id", (_req, res) => res.json({ job: res.locals.job }));
-  app.post("/api/jobs/:id/browser-ticket", (req, res) => {
+  const browserAccess = (res: express.Response) => {
     const job: Job = res.locals.job;
     requirePermission(res.locals.user, job.kind === "upload" ? "bot.upload.execute" : job.kind === "delete" ? "bot.delete.request" : "bot.extract.execute");
-    if (config.WORKER_RUNTIME === "local" || !["awaiting_otp", "ready"].includes(job.status) || !runner.browserBase(job.id))
-      return res.status(409).json({ error: "Browser controls are available only while completing portal login." });
-    const ticket = browserTickets.issue(res.locals.user.id, job.id, tokenHash(req.cookies.session));
-    const base = new URL(config.BROWSER_PUBLIC_ORIGIN ?? config.PUBLIC_ORIGIN);
-    base.protocol = base.protocol === "https:" ? "wss:" : "ws:";
-    base.pathname = `/api/jobs/${job.id}/browser`;
-    base.search = new URLSearchParams({ ticket }).toString();
-    res.set("Cache-Control", "no-store").json({ websocketUrl: base.toString() });
+    if (config.WORKER_RUNTIME !== "hosted" || !["awaiting_otp", "ready"].includes(job.status))
+      failure("Browser controls are available only while completing portal login.", 409);
+    return job;
+  };
+  app.get("/api/jobs/:id/browser/frame", async (_req, res) => {
+    const job = browserAccess(res);
+    const image = await runner.call(job.id, "/browser/frame");
+    res.set("Cache-Control", "no-store").type("image/png").send(Buffer.from(await image.arrayBuffer()));
+  });
+  app.post("/api/jobs/:id/browser/input", async (req, res) => {
+    const job = browserAccess(res);
+    const input = z.object({
+      action: z.enum(["click", "text", "key", "scroll"]),
+      x: z.number().int().min(0).max(1440).optional(), y: z.number().int().min(0).max(1000).optional(),
+      text: z.string().max(256).optional(),
+      key: z.enum(["Tab", "Enter", "Backspace", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "SelectAll"]).optional(),
+      delta: z.number().int().min(-800).max(800).optional(),
+    }).strict().parse(req.body);
+    res.set("Cache-Control", "no-store").json(await (await runner.call(job.id, "/browser/input", input)).json());
   });
   app.post("/api/jobs/:id/open", async (_req, res) => {
     if (res.locals.job.status !== "awaiting_otp") {

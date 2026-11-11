@@ -18,14 +18,14 @@ No production demo users or fabricated portal success. Automated tests use isola
 
 ## Original BOT mapping
 
-Both original files remain unchanged:
+Original extraction logic is retained; desktop-only imports are optional for hosted execution:
 
 | Source | Adapter | Behaviour |
 | --- | --- | --- |
 | commonportalscraper separate Available.py | workers/app.py | Login, procurement, wallet, Available and Excel |
 | commonportalpwpscraper 2.1.py | workers/operations.py | Distinct PWP/PIBO/sales parsers/forms and constrained production-record deletion |
 
-Local mode opens Chrome on the **backend computer**. Hosted mode needs Docker/noVNC workers and authenticated WebSocket viewing; it cannot open the end user's personal Chrome directly. OTP is completed by a human. Parallel capacity is bounded by provisioned CPU/RAM and portal behaviour; 50 concurrent browsers have not been load-tested.
+Local mode opens Chrome on the **backend computer**. Hosted mode uses native Python/headless Chromium with authenticated screenshot and input controls; it cannot open the end user's personal Chrome directly. OTP is completed by a human. Parallel capacity is bounded by provisioned CPU/RAM and portal behaviour; 50 concurrent browsers have not been load-tested.
 
 ## Source layout
 
@@ -34,7 +34,7 @@ Local mode opens Chrome on the **backend computer**. Hosted mode needs Docker/no
 - apps/api/src/{app,store,runner,create-admin}.ts: auth/API, persistence, worker orchestration and explicit first-account provisioning.
 - workers/: original-source adapters, internal worker API and Python tests.
 - tests/, scripts/test-stack.mjs: isolated browser acceptance harness.
-- compose.yaml, deploy/nginx.conf, workers/Dockerfile, apps/api/Dockerfile, .github/workflows/ci.yml: deployment and CI.
+- scripts/render-build.sh, scripts/start-native.mjs, .github/workflows/ci.yml: deployment and CI.
 
 ## Routes and API
 
@@ -52,15 +52,7 @@ Workbooks and submitted approval evidence are private files. Set PRIVATE_FILE_ST
 
 ## Deployment
 
-For the Render API, leave Root Directory blank, build with npm ci --include=dev && npm run build --workspace apps/api, and start with node apps/api/dist/index.js. Configure NODE_VERSION=22, NODE_ENV=production, PUBLIC_ORIGIN=https://orqix-psi.vercel.app, COOKIE_SECURE=true, METADATA_STORE=mongodb, PRIVATE_FILE_STORAGE=cloudinary, the three CLOUDINARY_* settings and your scoped MONGODB_URI. Use /api/health for health checks. Frontend /api rewrites must point to the Render service. Selenium workers still require a separately provisioned Python/browser runtime; a Node-only Render deployment does not provide them.
-
-For the full Docker worker deployment, use a Linux host with Docker and Atlas access. Configure .env from docs/env.example with the production settings, ENFORCE_ASSIGNMENTS=true and appropriate concurrency limits. DigitalOcean Spaces remains optional: select PRIVATE_FILE_STORAGE=spaces and supply Spaces credentials to use it. Never commit secrets.
-
-Build worker: docker build -t cpcb-worker:local -f workers/Dockerfile .
-
-Start API/frontend/Redis: docker compose up -d --build
-
-Install deploy/nginx.conf with your actual hostname and TLS certificates; verify WSS/SSE and the trusted proxy setting. API is bound to localhost; Redis/workers stay private. The platform mounts Docker's socket: run on a dedicated hardened host with restricted operator access. Set Atlas backup/restore procedures, file retention and monitoring/alerts before launch. CI builds/tests are configured; an automatic DigitalOcean release pipeline requires deployment credentials and is not configured.
+Use the native Node runtime described in [Render bot setup](docs/RENDER-BOT.md). Build with `bash scripts/render-build.sh` and start with `node scripts/start-native.mjs`. The build installs Python dependencies and matching headless Chromium/driver, then verifies the real browser. Keep production MongoDB and Cloudinary credentials in Render environment variables. No desktop display service is required.
 
 Optional configuration names: REDIS_URL; GRAPH_TENANT_ID, GRAPH_CLIENT_ID, GRAPH_CLIENT_SECRET, GRAPH_SENDER; AI_MODEL, AI_GATEWAY_API_KEY. Without these, UI reports configuration status and the assistant uses labeled SOP guidance. Graph sendMail acceptance is not delivery confirmation: https://learn.microsoft.com/en-us/graph/api/user-sendmail?view=graph-rest-1.0 . BullMQ scheduler documentation: https://docs.bullmq.io/guide/job-schedulers/ .
 

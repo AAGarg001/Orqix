@@ -5,7 +5,6 @@ import express from "express";
 import { config } from "./config.js";
 import { Store } from "./store.js";
 import { Runner } from "./runner.js";
-import { installBrowserProxy } from "./browser-access.js";
 import { createApp } from "./app.js";
 import { startReportScheduler } from "./enterprise/intelligence.js";
 const store = new Store(config.METADATA_STORE === "memory");
@@ -29,7 +28,6 @@ app.get("/{*path}", (req, res) => {
   res.sendFile(path.join(webDist, "index.html"));
 });
 const server = http.createServer(app);
-installBrowserProxy(server, store, runner, app.locals.browserTickets, (user, id) => app.locals.enterprise.assignment(user, id, true));
 let ticking = false;
 const timer = setInterval(() => {
   if (ticking) return;

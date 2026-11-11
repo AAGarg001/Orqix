@@ -1,4 +1,3 @@
-import Docker from "dockerode";
 import { spawn, execFile, type ChildProcess } from "node:child_process";
 import { createServer } from "node:net";
 import { randomBytes } from "node:crypto";
@@ -13,11 +12,8 @@ const root = path.resolve(
   "../../..",
 );
 type Execution = {
-  container?: Docker.Container;
   process?: ChildProcess;
   base?: string;
-  browserBase?: string;
-  browserBlocked?: boolean;
   token: string;
   directory?: string;
   born: number;
@@ -38,9 +34,7 @@ async function freePort() {
   return address.port;
 }
 export class Runner {
-  onBrowserLock?: (id: string) => void;
   onJobState?: (job: Job) => Promise<void>;
-  private docker = new Docker();
   private executions = new Map<string, Execution>();
   private locked = false;
   private runningClaims = new Set<string>();
@@ -82,11 +76,6 @@ export class Runner {
     void this.boot(job.id);
   }
   async update(id: string, patch: Partial<Job>) {
-    const execution = this.executions.get(id);
-    if (execution && patch.status) {
-      execution.browserBlocked = !["awaiting_otp", "ready"].includes(patch.status);
-      if (execution.browserBlocked) this.onBrowserLock?.(id);
-    }
     const job = await this.store.job(id);
     if (job) {
       await this.store.saveJob({
@@ -101,9 +90,8 @@ export class Runner {
   private async boot(id: string) {
     const execution = this.executions.get(id)!;
     try {
-      if (config.WORKER_RUNTIME !== "docker") {
+      {
         const port = await freePort();
-        const browserPort = config.WORKER_RUNTIME === "hosted" ? await freePort() : undefined;
         execution.directory = await mkdtemp(path.join(tmpdir(), 'orqix-worker-'));
         await mkdir(execution.directory, { recursive: true });
         if (execution.cancelled) return;
@@ -114,10 +102,7 @@ export class Runner {
             : path.resolve(root, config.PYTHON_EXECUTABLE);
         execution.process = spawn(
           python,
-          config.WORKER_RUNTIME === "hosted" ? [
-            path.join(root, "workers", "hosted.py"),
-            "--api-port", String(port), "--browser-port", String(browserPort),
-          ] : [
+          [
             "-m",
             "uvicorn",
             "app:app",
@@ -137,6 +122,8 @@ export class Runner {
               // or mail credentials from the API environment.
               ...(config.WORKER_RUNTIME === "hosted" ? {
                 PATH: process.env.PATH, LANG: "C.UTF-8", TZ: "UTC",
+                LD_LIBRARY_PATH: process.env.LD_LIBRARY_PATH,
+                CHROME_BINARY: process.env.CHROME_BINARY, CHROMEDRIVER_PATH: process.env.CHROMEDRIVER_PATH,
               } : process.env),
               WORKER_TOKEN: execution.token,
               WORKER_RUNTIME: config.WORKER_RUNTIME,
@@ -156,42 +143,6 @@ export class Runner {
         );
         execution.process.on("error", () => {});
         execution.base = `http://127.0.0.1:${port}`;
-        if (browserPort) execution.browserBase = `http://127.0.0.1:${browserPort}`;
-      } else {
-        execution.container = await this.docker.createContainer({
-          Image: config.WORKER_IMAGE,
-          name: `cpcb-${id}`,
-          Env: [
-            `WORKER_TOKEN=${execution.token}`,
-            "WORKER_RUNTIME=docker",
-            "WORKER_WATCHDOG=true",
-          ],
-          Labels: { "cpcb.managed": "true", "cpcb.job": id },
-          HostConfig: {
-            NetworkMode: config.WORKER_NETWORK,
-            Memory: 2 * 1024 ** 3,
-            NanoCpus: 2 * 1e9,
-            ShmSize: 512 * 1024 ** 2,
-            CapDrop: ["ALL"],
-            SecurityOpt: ["no-new-privileges:true"],
-            PidsLimit: 256,
-            Tmpfs: {
-              "/work": "rw,nosuid,nodev,size=1073741824,uid=1000,gid=1000",
-              "/tmp": "rw,nosuid,nodev,size=536870912",
-            },
-          },
-        });
-        if (execution.cancelled) {
-          await execution.container.remove({ force: true });
-          return;
-        }
-        await execution.container.start();
-        const info = await execution.container.inspect();
-        const ip =
-          info.NetworkSettings.Networks[config.WORKER_NETWORK]?.IPAddress;
-        if (!ip) throw new Error("Worker network unavailable.");
-        execution.base = `http://${ip}:8000`;
-        execution.browserBase = `http://${ip}:6080`;
       }
       let healthy = false;
       for (let n = 0; n < (config.WORKER_RUNTIME === "hosted" ? 180 : 45); n++) {
@@ -227,8 +178,8 @@ export class Runner {
             config.WORKER_RUNTIME === "local"
               ? "Check PYTHON_EXECUTABLE and install workers/requirements.txt into that Python environment."
               : config.WORKER_RUNTIME === "hosted"
-                ? "Cloud browser could not start. Check the hosted image, Python/browser dependencies and available server memory."
-                : "Check Docker, worker image, network and server resources.",
+                ? "Cloud browser could not start. Check the native runtime, Python/browser dependencies and available server memory."
+                : "Check Python and browser dependencies on the server.",
         });
       await this.destroy(id);
     }
@@ -415,10 +366,6 @@ export class Runner {
     return this.executions.get(id)?.base;
   }
   occupiedSessions() { return this.executions.size; }
-  browserBase(id: string) {
-    const execution = this.executions.get(id);
-    return execution?.browserBlocked ? undefined : execution?.browserBase;
-  }
   async artifact(id: string): Promise<Buffer> {
     return Buffer.from(await (await this.call(id, "/artifact")).arrayBuffer());
   }
@@ -455,8 +402,6 @@ export class Runner {
         });
       }
     }
-    if (execution.container)
-      await execution.container.remove({ force: true }).catch(() => {});
     if (
       execution.directory &&
       ((path.resolve(execution.directory).startsWith(path.join(root, "runtime", "jobs") + path.sep)) ||
@@ -490,12 +435,6 @@ export class Runner {
   }
   async recover() {
     await this.store.finishOrphanedRuns();
-    if (config.WORKER_RUNTIME === "docker")
-      for (const c of await this.docker.listContainers({
-        all: true,
-        filters: JSON.stringify({ label: ["cpcb.managed=true"] }),
-      }))
-        await this.docker.getContainer(c.Id).remove({ force: true });
     for (const j of await this.store.pending())
       await this.update(j.id, {
         status: active(j.status) ? "failed" : j.status,

@@ -6,8 +6,7 @@ const bool = (fallback: string) =>
     .transform((v) => v === "true");
 export const config = z
   .object({
-    WORKER_RUNTIME: z.enum(["local", "docker", "hosted"]).default("local"),
-    BROWSER_PUBLIC_ORIGIN: z.string().url().optional(),
+    WORKER_RUNTIME: z.enum(["local", "hosted"]).default("local"),
     METADATA_STORE: z.enum(["memory", "mongodb"]).default(process.env.NODE_ENV==='test'?"memory":"mongodb"),
     PYTHON_EXECUTABLE: z
       .string()
@@ -47,8 +46,6 @@ export const config = z
     COOKIE_SECURE: bool("false"),
     REGISTRATION_ENABLED: bool(process.env.NODE_ENV==='test'?"true":"false"),
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(2).default(0),
-    WORKER_IMAGE: z.string().default("cpcb-worker:local"),
-    WORKER_NETWORK: z.string().default("cpcb-workers"),
   })
   .parse(process.env);
 if (
@@ -65,8 +62,6 @@ if (process.env.NODE_ENV === "production") {
   if (!config.COOKIE_SECURE) problems.push("COOKIE_SECURE must be true");
   if (!config.PUBLIC_ORIGIN.startsWith("https://")) problems.push("PUBLIC_ORIGIN must use https://");
   if (config.PRIVATE_FILE_STORAGE === "local") problems.push("PRIVATE_FILE_STORAGE must be mongodb, cloudinary or spaces in production");
-  if (config.WORKER_RUNTIME === "hosted" && (!config.BROWSER_PUBLIC_ORIGIN || !config.BROWSER_PUBLIC_ORIGIN.startsWith("https://")))
-    problems.push("BROWSER_PUBLIC_ORIGIN must be the HTTPS Render service origin for hosted workers");
   if (config.PRIVATE_FILE_STORAGE === "spaces") {
     for (const key of ["SPACES_BUCKET", "SPACES_ACCESS_KEY", "SPACES_SECRET_KEY"] as const) {
       if (!config[key]?.trim()) problems.push(`${key} is missing`);
