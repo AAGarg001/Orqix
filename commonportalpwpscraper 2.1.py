@@ -950,7 +950,7 @@ from urllib.parse import urlsplit
 from selenium.common.exceptions import ElementClickInterceptedException
 from decimal import Decimal, InvalidOperation
 from openpyxl import load_workbook
-from tkinter import filedialog
+# filedialog is imported optionally with the other desktop controls above.
 
 SALES_URL = "https://epr.cpcb.gov.in/onboarding/producer-sales/single-entry"
 SALES_INVOICE_DIR = BASE_DIR / "Invoice upload"

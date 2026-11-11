@@ -1,5 +1,8 @@
 """Exercise the real visible worker browser and frame controls offline."""
 import os
+import sys
+# Render Python does not include Tk; verify that desktop-only UI is optional.
+sys.modules["tkinter"] = None
 from fastapi.testclient import TestClient
 from app import app, browser, legacy, state
 
