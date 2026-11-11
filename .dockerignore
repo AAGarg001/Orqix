@@ -11,3 +11,9 @@ cpcb_cookies.json
 test-results
 playwright-report
 **/__pycache__
+mongodb atlas database details.txt
+.venv
+.npm-cache
+.pytest_cache
+artifacts
+exports

@@ -100,7 +100,7 @@ export function BotPage({
         kind,
       });
       setJobId(r.job.id);
-      for (let i = 0; i < 90; i++) {
+      for (let i = 0; i < (session.workerRuntime === "hosted" ? 240 : 90); i++) {
         const { job } = await api<{ job: Job }>(`/jobs/${r.job.id}`);
         if (job.status === "failed") throw new Error(job.error ?? job.stage);
         if (job.status === "awaiting_otp") {
@@ -116,7 +116,7 @@ export function BotPage({
     },
     onSuccess: () => {
       setPassword("");
-      if (session.workerRuntime === "docker") setBrowser(true);
+      if (session.workerRuntime !== "local") setBrowser(true);
       toast.success("CPCB login opened. Complete OTP manually.");
       void client.invalidateQueries();
     },
@@ -319,7 +319,7 @@ export function BotPage({
             </div>
           </dl>
           {job &&
-          session.workerRuntime === "docker" &&
+          session.workerRuntime !== "local" &&
           ["ready", "awaiting_otp", "running"].includes(job.status) ? (
             <Button variant="secondary" onClick={() => setBrowser(!browser)}>
               <Monitor size={16} />
@@ -341,7 +341,7 @@ export function BotPage({
           ) : null}
         </section>
       </div>
-      {browser && job && session.workerRuntime === "docker" ? (
+      {browser && job && session.workerRuntime !== "local" ? (
         <section className="oq-card">
           <Suspense fallback={<p>Loading secure browser…</p>}>
             <BrowserView id={job.id} running={job.status === "running"} />

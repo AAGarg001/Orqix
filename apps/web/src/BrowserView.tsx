@@ -1,45 +1,29 @@
-import { useEffect, useRef, useState } from "react";
-// noVNC ships JavaScript ESM without bundled TypeScript declarations.
-// @ts-expect-error noVNC declaration is not published
+﻿import { useEffect, useRef, useState } from "react";
+// @ts-expect-error noVNC does not publish TypeScript declarations
 import RFB from "@novnc/novnc";
-export default function BrowserView({
-  id,
-  running,
-}: {
-  id: string;
-  running: boolean;
-}) {
+import { post } from "./api";
+export default function BrowserView({ id, running }: { id: string; running: boolean }) {
   const host = useRef<HTMLDivElement>(null);
   const [state, setState] = useState("Connecting to your isolated browser…");
   useEffect(() => {
     if (!host.current) return;
-    const rfb = new RFB(
-      host.current,
-      `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/api/jobs/${id}/browser`,
-    );
-    rfb.scaleViewport = true;
-    rfb.resizeSession = false;
-    rfb.viewOnly = running;
-    rfb.addEventListener("connect", () =>
-      setState(
-        running
-          ? "Connected · view only during extraction"
-          : "Connected · you can enter the OTP directly below",
-      ),
-    );
-    rfb.addEventListener("disconnect", () =>
-      setState(
-        "Browser disconnected. Reopen the live view or check job status.",
-      ),
-    );
-    return () => rfb.disconnect();
+    if (running) {
+      setState("Automation running. Browser controls are locked until it finishes.");
+      return;
+    }
+    let cancelled = false;
+    let connection: { disconnect(): void } | undefined;
+    setState("Connecting to your isolated browser…");
+    void post<{ websocketUrl: string }>(`/jobs/${id}/browser-ticket`).then(({ websocketUrl }) => {
+      if (cancelled || !host.current) return;
+      const rfb = new RFB(host.current, websocketUrl);
+      connection = rfb;
+      rfb.scaleViewport = true;
+      rfb.resizeSession = false;
+      rfb.addEventListener("connect", () => { if (!cancelled) setState("Connected · enter the OTP in the portal browser below"); });
+      rfb.addEventListener("disconnect", () => { if (!cancelled) setState("Browser disconnected. Reopen the live view to reconnect."); });
+    }).catch(() => { if (!cancelled) setState("Browser connection failed. Reopen the live view or check job status."); });
+    return () => { cancelled = true; connection?.disconnect(); };
   }, [id, running]);
-  return (
-    <div>
-      <p className="browser-caption" role="status">
-        {state}
-      </p>
-      <div className="vnc-screen" ref={host} />
-    </div>
-  );
+  return <div><p className="browser-caption" role="status">{state}</p><div className="vnc-screen" ref={host} /></div>;
 }

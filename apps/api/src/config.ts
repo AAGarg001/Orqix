@@ -6,7 +6,8 @@ const bool = (fallback: string) =>
     .transform((v) => v === "true");
 export const config = z
   .object({
-    WORKER_RUNTIME: z.enum(["local", "docker"]).default("local"),
+    WORKER_RUNTIME: z.enum(["local", "docker", "hosted"]).default("local"),
+    BROWSER_PUBLIC_ORIGIN: z.string().url().optional(),
     METADATA_STORE: z.enum(["memory", "mongodb"]).default(process.env.NODE_ENV==='test'?"memory":"mongodb"),
     PYTHON_EXECUTABLE: z
       .string()
@@ -64,6 +65,8 @@ if (process.env.NODE_ENV === "production") {
   if (!config.COOKIE_SECURE) problems.push("COOKIE_SECURE must be true");
   if (!config.PUBLIC_ORIGIN.startsWith("https://")) problems.push("PUBLIC_ORIGIN must use https://");
   if (config.PRIVATE_FILE_STORAGE === "local") problems.push("PRIVATE_FILE_STORAGE must be mongodb, cloudinary or spaces in production");
+  if (config.WORKER_RUNTIME === "hosted" && (!config.BROWSER_PUBLIC_ORIGIN || !config.BROWSER_PUBLIC_ORIGIN.startsWith("https://")))
+    problems.push("BROWSER_PUBLIC_ORIGIN must be the HTTPS Render service origin for hosted workers");
   if (config.PRIVATE_FILE_STORAGE === "spaces") {
     for (const key of ["SPACES_BUCKET", "SPACES_ACCESS_KEY", "SPACES_SECRET_KEY"] as const) {
       if (!config[key]?.trim()) problems.push(`${key} is missing`);

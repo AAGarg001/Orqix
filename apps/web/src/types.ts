@@ -17,7 +17,7 @@ export type Job = {
 };
 export type Me = {
   user: { id: string; name: string; email: string };
-  workerRuntime: "local" | "docker";
+  workerRuntime: "local" | "docker" | "hosted";
   metadataStore: "memory" | "mongodb";
   retentionMinutes: number;
   maxJobsPerUser: number;

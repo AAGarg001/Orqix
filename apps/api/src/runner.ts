@@ -16,6 +16,8 @@ type Execution = {
   container?: Docker.Container;
   process?: ChildProcess;
   base?: string;
+  browserBase?: string;
+  browserBlocked?: boolean;
   token: string;
   directory?: string;
   born: number;
@@ -36,6 +38,7 @@ async function freePort() {
   return address.port;
 }
 export class Runner {
+  onBrowserLock?: (id: string) => void;
   onJobState?: (job: Job) => Promise<void>;
   private docker = new Docker();
   private executions = new Map<string, Execution>();
@@ -53,7 +56,7 @@ export class Runner {
       const jobs = await this.store.pending();
       if (
         jobs.filter((j) => active(j.status)).length >=
-        config.MAX_CONCURRENT_JOBS
+        (config.WORKER_RUNTIME === "hosted" ? 1 : config.MAX_CONCURRENT_JOBS)
       )
         throw Object.assign(new Error("All execution slots are in use."), {
           status: 503,
@@ -77,6 +80,11 @@ export class Runner {
     void this.boot(job.id);
   }
   async update(id: string, patch: Partial<Job>) {
+    const execution = this.executions.get(id);
+    if (execution && patch.status) {
+      execution.browserBlocked = !["awaiting_otp", "ready"].includes(patch.status);
+      if (execution.browserBlocked) this.onBrowserLock?.(id);
+    }
     const job = await this.store.job(id);
     if (job) {
       await this.store.saveJob({
@@ -91,8 +99,9 @@ export class Runner {
   private async boot(id: string) {
     const execution = this.executions.get(id)!;
     try {
-      if (config.WORKER_RUNTIME === "local") {
+      if (config.WORKER_RUNTIME !== "docker") {
         const port = await freePort();
+        const browserPort = config.WORKER_RUNTIME === "hosted" ? await freePort() : undefined;
         execution.directory = await mkdtemp(path.join(tmpdir(), 'orqix-worker-'));
         await mkdir(execution.directory, { recursive: true });
         if (execution.cancelled) return;
@@ -103,7 +112,10 @@ export class Runner {
             : path.resolve(root, config.PYTHON_EXECUTABLE);
         execution.process = spawn(
           python,
-          [
+          config.WORKER_RUNTIME === "hosted" ? [
+            path.join(root, "workers", "hosted.py"),
+            "--api-port", String(port), "--browser-port", String(browserPort),
+          ] : [
             "-m",
             "uvicorn",
             "app:app",
@@ -119,9 +131,13 @@ export class Runner {
             detached: process.platform !== "win32",
             stdio: "ignore",
             env: {
-              ...process.env,
+              // Hosted worker processes do not need database, payment, storage
+              // or mail credentials from the API environment.
+              ...(config.WORKER_RUNTIME === "hosted" ? {
+                PATH: process.env.PATH, LANG: "C.UTF-8", TZ: "UTC",
+              } : process.env),
               WORKER_TOKEN: execution.token,
-              WORKER_RUNTIME: "local",
+              WORKER_RUNTIME: config.WORKER_RUNTIME,
               WORKER_WATCHDOG: "true",
               WORK_DIR: execution.directory,
               LEGACY_SCRIPT: path.join(
@@ -138,6 +154,7 @@ export class Runner {
         );
         execution.process.on("error", () => {});
         execution.base = `http://127.0.0.1:${port}`;
+        if (browserPort) execution.browserBase = `http://127.0.0.1:${browserPort}`;
       } else {
         execution.container = await this.docker.createContainer({
           Image: config.WORKER_IMAGE,
@@ -172,9 +189,10 @@ export class Runner {
           info.NetworkSettings.Networks[config.WORKER_NETWORK]?.IPAddress;
         if (!ip) throw new Error("Worker network unavailable.");
         execution.base = `http://${ip}:8000`;
+        execution.browserBase = `http://${ip}:6080`;
       }
       let healthy = false;
-      for (let n = 0; n < 45; n++) {
+      for (let n = 0; n < (config.WORKER_RUNTIME === "hosted" ? 180 : 45); n++) {
         if (execution.cancelled) return;
         if (
           execution.process &&
@@ -206,7 +224,9 @@ export class Runner {
           error:
             config.WORKER_RUNTIME === "local"
               ? "Check PYTHON_EXECUTABLE and install workers/requirements.txt into that Python environment."
-              : "Check Docker, worker image, network and server resources.",
+              : config.WORKER_RUNTIME === "hosted"
+                ? "Cloud browser could not start. Check the hosted image, Python/browser dependencies and available server memory."
+                : "Check Docker, worker image, network and server resources.",
         });
       await this.destroy(id);
     }
@@ -392,6 +412,10 @@ export class Runner {
   base(id: string) {
     return this.executions.get(id)?.base;
   }
+  browserBase(id: string) {
+    const execution = this.executions.get(id);
+    return execution?.browserBlocked ? undefined : execution?.browserBase;
+  }
   async artifact(id: string): Promise<Buffer> {
     return Buffer.from(await (await this.call(id, "/artifact")).arrayBuffer());
   }
@@ -417,6 +441,15 @@ export class Runner {
         try {
           process.kill(-execution.process.pid, "SIGTERM");
         } catch {}
+        await new Promise<void>((resolve) => {
+          const child = execution.process!;
+          if (child.exitCode !== null) return resolve();
+          const timer = setTimeout(() => {
+            try { process.kill(-child.pid!, "SIGKILL"); } catch {}
+            resolve();
+          }, 5000);
+          child.once("exit", () => { clearTimeout(timer); resolve(); });
+        });
       }
     }
     if (execution.container)

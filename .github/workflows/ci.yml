@@ -50,6 +50,14 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: docker build -t cpcb-worker:local -f workers/Dockerfile .
+      - name: Build Render cloud bot image
+        run: docker build -t orqix-hosted:test -f deploy/render.Dockerfile .
+      - name: Verify real hosted browser runtime
+        run: >-
+          docker run --rm --memory=2g --cpus=1
+          -e NODE_ENV=test -e METADATA_STORE=memory
+          -e PRIVATE_FILE_STORAGE=local -e WORKER_RUNTIME=hosted
+          orqix-hosted:test node scripts/smoke-hosted.mjs
       - name: Save browser failure reports
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
