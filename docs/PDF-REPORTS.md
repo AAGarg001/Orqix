@@ -12,7 +12,7 @@ The PDF renderer uses vector branding, an executive summary with six formatted m
 
 GET `/api/client/axis/export?...&format=pdf` still downloads an uncustomized branded report. POST to the same URL accepts multipart field `logo` (optional). Existing tenant ownership and published-snapshot filtering apply to both. Unsupported images/oversized files are rejected. Logos and generated PDF bytes are handled in memory and never archived; only existing minimal download history is retained. Temporary development PDF samples/screenshots were deleted after layout verification.
 
-Implementation: `apps/api/src/axis/report-pdf.ts`, `report-pdf.test.ts`, Axis export router, `apps/web/src/client/PdfDownloadButton.tsx`, `pdf-download.css` and report catalog buttons. The SVG renderer dependency is `svg-to-pdfkit`. Development loads the public SVG; the native runtime uses the copied web-dist SVG fallback.
+Implementation: `apps/api/src/axis/report-pdf.ts`, `report-pdf.test.ts`, Axis export router, `apps/web/src/client/PdfDownloadButton.tsx`, `pdf-download.css` and report catalog buttons. The SVG renderer dependency is `svg-to-pdfkit`. Development loads the public SVG; the Docker runtime uses the copied web-dist SVG fallback.
 
 Verification: 59 API/unit tests passed, including summary page count, embedded company image, multi-page detail rendering and malformed/oversized logo rejection. Axis and Razorpay browser tests both passed; Axis includes actual logo-upload/customized PDF download and optional no-logo download. Real Uflex PDFs were rendered for inspection; summary is two pages, detail reports have repeating headers/footers and no extra blank footer pages. Popup fits 1568/768/390/320px. Production builds passed.
 

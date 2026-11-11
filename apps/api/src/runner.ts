@@ -1,3 +1,4 @@
+import Docker from "dockerode";
 import { spawn, execFile, type ChildProcess } from "node:child_process";
 import { createServer } from "node:net";
 import { randomBytes } from "node:crypto";
@@ -12,6 +13,7 @@ const root = path.resolve(
   "../../..",
 );
 type Execution = {
+  container?: Docker.Container;
   process?: ChildProcess;
   base?: string;
   token: string;
@@ -35,6 +37,7 @@ async function freePort() {
 }
 export class Runner {
   onJobState?: (job: Job) => Promise<void>;
+  private docker = new Docker();
   private executions = new Map<string, Execution>();
   private locked = false;
   private runningClaims = new Set<string>();
@@ -47,12 +50,10 @@ export class Runner {
       );
     this.locked = true;
     try {
-      if (config.WORKER_RUNTIME === "hosted" && this.executions.size >= 1)
-        throw Object.assign(new Error("Close the existing browser session or clear its temporary files before starting another."), { status: 503 });
       const jobs = await this.store.pending();
       if (
         jobs.filter((j) => active(j.status)).length >=
-        (config.WORKER_RUNTIME === "hosted" ? 1 : config.MAX_CONCURRENT_JOBS)
+        config.MAX_CONCURRENT_JOBS
       )
         throw Object.assign(new Error("All execution slots are in use."), {
           status: 503,
@@ -90,7 +91,7 @@ export class Runner {
   private async boot(id: string) {
     const execution = this.executions.get(id)!;
     try {
-      {
+      if (config.WORKER_RUNTIME === "local") {
         const port = await freePort();
         execution.directory = await mkdtemp(path.join(tmpdir(), 'orqix-worker-'));
         await mkdir(execution.directory, { recursive: true });
@@ -118,16 +119,9 @@ export class Runner {
             detached: process.platform !== "win32",
             stdio: "ignore",
             env: {
-              // Hosted worker processes do not need database, payment, storage
-              // or mail credentials from the API environment.
-              ...(config.WORKER_RUNTIME === "hosted" ? {
-                PATH: process.env.PATH, LANG: "C.UTF-8", TZ: "UTC",
-                LD_LIBRARY_PATH: process.env.LD_LIBRARY_PATH,
-                DISPLAY: process.env.DISPLAY,
-                CHROME_BINARY: process.env.CHROME_BINARY, CHROMEDRIVER_PATH: process.env.CHROMEDRIVER_PATH,
-              } : process.env),
+              ...process.env,
               WORKER_TOKEN: execution.token,
-              WORKER_RUNTIME: config.WORKER_RUNTIME,
+              WORKER_RUNTIME: "local",
               WORKER_WATCHDOG: "true",
               WORK_DIR: execution.directory,
               LEGACY_SCRIPT: path.join(
@@ -144,9 +138,43 @@ export class Runner {
         );
         execution.process.on("error", () => {});
         execution.base = `http://127.0.0.1:${port}`;
+      } else {
+        execution.container = await this.docker.createContainer({
+          Image: config.WORKER_IMAGE,
+          name: `cpcb-${id}`,
+          Env: [
+            `WORKER_TOKEN=${execution.token}`,
+            "WORKER_RUNTIME=docker",
+            "WORKER_WATCHDOG=true",
+          ],
+          Labels: { "cpcb.managed": "true", "cpcb.job": id },
+          HostConfig: {
+            NetworkMode: config.WORKER_NETWORK,
+            Memory: 2 * 1024 ** 3,
+            NanoCpus: 2 * 1e9,
+            ShmSize: 512 * 1024 ** 2,
+            CapDrop: ["ALL"],
+            SecurityOpt: ["no-new-privileges:true"],
+            PidsLimit: 256,
+            Tmpfs: {
+              "/work": "rw,nosuid,nodev,size=1073741824,uid=1000,gid=1000",
+              "/tmp": "rw,nosuid,nodev,size=536870912",
+            },
+          },
+        });
+        if (execution.cancelled) {
+          await execution.container.remove({ force: true });
+          return;
+        }
+        await execution.container.start();
+        const info = await execution.container.inspect();
+        const ip =
+          info.NetworkSettings.Networks[config.WORKER_NETWORK]?.IPAddress;
+        if (!ip) throw new Error("Worker network unavailable.");
+        execution.base = `http://${ip}:8000`;
       }
       let healthy = false;
-      for (let n = 0; n < (config.WORKER_RUNTIME === "hosted" ? 180 : 45); n++) {
+      for (let n = 0; n < 45; n++) {
         if (execution.cancelled) return;
         if (
           execution.process &&
@@ -178,9 +206,7 @@ export class Runner {
           error:
             config.WORKER_RUNTIME === "local"
               ? "Check PYTHON_EXECUTABLE and install workers/requirements.txt into that Python environment."
-              : config.WORKER_RUNTIME === "hosted"
-                ? "Cloud browser could not start. Check the native runtime, Python/browser dependencies and available server memory."
-                : "Check Python and browser dependencies on the server.",
+              : "Check Docker, worker image, network and server resources.",
         });
       await this.destroy(id);
     }
@@ -213,15 +239,8 @@ export class Runner {
     return response;
   }
   async login(id: string, credentials: { userId: string; password: string }) {
-    await this.update(id, { stage: "Opening CPCB portal and filling the selected account credentials…", error: "" });
-    try {
-      await this.call(id, "/login", credentials);
-    } catch (error) {
-      await this.update(id, { stage: "CPCB login could not open. Retry Open Login for this session.", error: "CPCB login could not open. Retry Open Login; if it still fails, the cloud browser may be unable to reach the portal." });
-      throw error;
-    }
+    await this.call(id, "/login", credentials);
     await this.update(id, {
-      error: "",
       stage:
         "CPCB portal opened. Enter the client OTP in the browser, click portal Login, then Verify completed OTP login.",
     });
@@ -373,7 +392,6 @@ export class Runner {
   base(id: string) {
     return this.executions.get(id)?.base;
   }
-  occupiedSessions() { return this.executions.size; }
   async artifact(id: string): Promise<Buffer> {
     return Buffer.from(await (await this.call(id, "/artifact")).arrayBuffer());
   }
@@ -399,17 +417,10 @@ export class Runner {
         try {
           process.kill(-execution.process.pid, "SIGTERM");
         } catch {}
-        await new Promise<void>((resolve) => {
-          const child = execution.process!;
-          if (child.exitCode !== null) return resolve();
-          const timer = setTimeout(() => {
-            try { process.kill(-child.pid!, "SIGKILL"); } catch {}
-            resolve();
-          }, 5000);
-          child.once("exit", () => { clearTimeout(timer); resolve(); });
-        });
       }
     }
+    if (execution.container)
+      await execution.container.remove({ force: true }).catch(() => {});
     if (
       execution.directory &&
       ((path.resolve(execution.directory).startsWith(path.join(root, "runtime", "jobs") + path.sep)) ||
@@ -443,6 +454,12 @@ export class Runner {
   }
   async recover() {
     await this.store.finishOrphanedRuns();
+    if (config.WORKER_RUNTIME === "docker")
+      for (const c of await this.docker.listContainers({
+        all: true,
+        filters: JSON.stringify({ label: ["cpcb.managed=true"] }),
+      }))
+        await this.docker.getContainer(c.Id).remove({ force: true });
     for (const j of await this.store.pending())
       await this.update(j.id, {
         status: active(j.status) ? "failed" : j.status,

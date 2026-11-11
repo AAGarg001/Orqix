@@ -12,7 +12,7 @@ Local verification on 31 October 2026. Automated portal tests use isolated adapt
 
 ## Not verified externally
 
-No supplied authenticated CPCB account/OTP was used. No live upload/deletion was executed. Native Linux browser checks run separately in CI. No Graph sender credentials, Redis runtime, private Spaces credentials or AI model credentials were available. No 50-concurrent-browser test or DigitalOcean deployment. These are release blockers, not successful integrations.
+No supplied authenticated CPCB account/OTP was used. No live upload/deletion was executed. Docker is unavailable locally; no hosted noVNC/container test. No Graph sender credentials, Redis runtime, private Spaces credentials or AI model credentials were available. No 50-concurrent-browser test or DigitalOcean deployment. These are release blockers, not successful integrations.
 
 Graph acceptance is recorded as ACCEPTED, never confirmed delivery. Sales source preserves disabled Submit. Failed/uncertain mutations require verification; tests never perform destructive portal operations.
 
@@ -140,7 +140,7 @@ Validation: all 56 API/unit tests passed (six new sandbox tests); new mocked-pro
 
 ### Branded PDF redesign and optional company logo
 
-Replaced raw PDF text dumps with A A GARG & CO vector branding, formatted executive metrics/charts, source/definition pages and readable paginated landscape tables. PDF download now opens an optional company-logo upload modal (PNG/JPEG, 2 MB, bounded dimensions); both logo and generated file remain in memory. Brand loads from public assets in development and web-dist in the existing native runtime. Fixed footer auto-pagination that initially created blank pages. Real Uflex summary now renders as two pages; detail reports explicitly limit preview to 100 records and point to full Excel export. Deleted all temporary real-data PDF/render samples after inspection.
+Replaced raw PDF text dumps with A A GARG & CO vector branding, formatted executive metrics/charts, source/definition pages and readable paginated landscape tables. PDF download now opens an optional company-logo upload modal (PNG/JPEG, 2 MB, bounded dimensions); both logo and generated file remain in memory. Brand loads from public assets in development and web-dist in the existing Docker runtime. Fixed footer auto-pagination that initially created blank pages. Real Uflex summary now renders as two pages; detail reports explicitly limit preview to 100 records and point to full Excel export. Deleted all temporary real-data PDF/render samples after inspection.
 
 59 API tests passed; Axis/logo-download and Razorpay browser tests both passed. Popup has no overflow at 1568/768/390/320px. Typecheck/build passed. Added supplied Razorpay TEST credentials to ignored backend .env and restarted dev server; read-only provider check HTTP 200 and client sandbox readiness true. No payment was initiated by verification. See PDF-REPORTS.md.
 

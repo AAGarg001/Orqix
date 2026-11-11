@@ -7,7 +7,7 @@ export const BlobButton = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef
     return (
       <button {...props} ref={ref} className={`blob-btn ${className}`}>
         {children}
-        <span className="blob-btn__inner" aria-hidden="true"> 
+        <span className="blob-btn__inner" aria-hidden="true">
           <span className="blob-btn__blobs">
             {[0, 1, 2, 3].map(i => <span className="blob-btn__blob" key={i} />)}
           </span>

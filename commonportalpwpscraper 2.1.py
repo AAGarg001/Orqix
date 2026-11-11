@@ -8,13 +8,8 @@ from decimal import Decimal, InvalidOperation
 from openpyxl import load_workbook
 from pathlib import Path
 from urllib.parse import urlsplit
-try:
-    import tkinter as tk
-    from tkinter import filedialog, messagebox, simpledialog, ttk
-except ImportError:
-    # The hosted headless worker does not use the desktop GUI.
-    tk = None
-    messagebox = ttk = filedialog = simpledialog = None
+import tkinter as tk
+from tkinter import filedialog, messagebox, simpledialog, ttk
 import pandas as pd
 from selenium import webdriver
 from selenium.common.exceptions import ElementClickInterceptedException, StaleElementReferenceException, TimeoutException, WebDriverException
@@ -950,7 +945,7 @@ from urllib.parse import urlsplit
 from selenium.common.exceptions import ElementClickInterceptedException
 from decimal import Decimal, InvalidOperation
 from openpyxl import load_workbook
-# filedialog is imported optionally with the other desktop controls above.
+from tkinter import filedialog
 
 SALES_URL = "https://epr.cpcb.gov.in/onboarding/producer-sales/single-entry"
 SALES_INVOICE_DIR = BASE_DIR / "Invoice upload"

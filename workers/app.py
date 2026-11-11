@@ -1,4 +1,4 @@
-"""Adapter around the user's unmodified Selenium workflow, one private process per job.
+"""Adapter around the user's unmodified Selenium workflow, one job per container.
 
 Credentials remain in request memory. CPCB data is kept only in the job's temporary directory.
 Do not add extraction rows, raw logs, cookies, or portal tokens to metadata responses.
@@ -15,15 +15,13 @@ from collections import deque
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Literal
-from urllib.parse import urlsplit
 
 from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.keys import Keys
 import pandas as pd
 
 WORK = Path(os.environ.get("WORK_DIR", "/work"))
@@ -96,21 +94,16 @@ def browser(allow_new=True):
         raise RuntimeError("Session unavailable")
     legacy.DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
     options = webdriver.ChromeOptions()
-    # CPCB can keep analytics/background resources open after its form is ready.
-    options.page_load_strategy = "eager"
     local = os.environ.get("WORKER_RUNTIME") == "local"
     if not local:
-        options.binary_location = os.environ["CHROME_BINARY"]
+        options.binary_location = "/usr/bin/chromium"
     arguments = ["--window-size=1440,900", "--disable-extensions", f"--user-data-dir={legacy.CHROME_PROFILE_DIR}"]
     if not local:
         arguments += ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
-        if not os.environ.get("DISPLAY"):
-            raise RuntimeError("Hosted Chrome requires the managed virtual display. Start with node scripts/start-native.mjs.")
-        arguments += ["--disable-background-networking", "--disable-software-rasterizer"]
     for argument in arguments:
         options.add_argument(argument)
     options.add_experimental_option("prefs", {"download.default_directory": str(legacy.DOWNLOAD_DIR), "download.prompt_for_download": False, "download.directory_upgrade": True})
-    legacy.driver = webdriver.Chrome(options=options) if local else webdriver.Chrome(service=Service(os.environ["CHROMEDRIVER_PATH"]), options=options)
+    legacy.driver = webdriver.Chrome(options=options) if local else webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=options)
     legacy.driver.set_page_load_timeout(legacy.PAGE_LOAD_TIMEOUT)
     return legacy.driver
 
@@ -147,68 +140,10 @@ class RunRequest(BaseModel):
 def health():
     return {"ok": True}
 
-
-class BrowserInput(BaseModel):
-    action: Literal["click", "text", "key", "scroll"]
-    x: int = Field(default=0, ge=0, le=1440)
-    y: int = Field(default=0, ge=0, le=1000)
-    text: str = Field(default="", max_length=256)
-    key: Literal["Tab", "Enter", "Backspace", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "SelectAll"] = "Tab"
-    delta: int = Field(default=0, ge=-800, le=800)
-
-
-def login_browser():
-    if state["status"] not in ("awaiting_otp", "ready"):
-        raise HTTPException(409, "Browser controls are locked during automation")
-    if legacy.driver is None:
-        raise HTTPException(409, "Open the portal login first")
-    return legacy.driver
-
-
-@app.get("/browser/frame", dependencies=[Depends(auth)])
-def browser_frame():
-    if not lock.acquire(blocking=False):
-        return Response(status_code=204, headers={"Cache-Control": "no-store", "Retry-After": "2"})
-    try:
-        if legacy.driver is None:
-            return Response(status_code=204, headers={"Cache-Control": "no-store"})
-        driver = login_browser()
-        # Never show the default Chrome/Google start page as a portal session.
-        location = urlsplit(driver.current_url)
-        hostname = location.hostname or ""
-        if location.scheme in ("chrome", "about") or hostname == "google.com" or hostname.endswith(".google.com"):
-            return Response(status_code=204, headers={"Cache-Control": "no-store"})
-        image = driver.get_screenshot_as_png()
-        return Response(image, media_type="image/png", headers={"Cache-Control": "no-store"})
-    finally:
-        lock.release()
-
-
-@app.post("/browser/input", dependencies=[Depends(auth)])
-def browser_input(data: BrowserInput):
-    if not lock.acquire(timeout=15):
-        raise HTTPException(409, "Portal is still busy. Wait for the current action to finish.")
-    try:
-        driver = login_browser()
-        if data.action == "click":
-            for event in ("mousePressed", "mouseReleased"):
-                driver.execute_cdp_cmd("Input.dispatchMouseEvent", {"type": event, "x": data.x, "y": data.y, "button": "left", "clickCount": 1})
-        elif data.action == "scroll":
-            driver.execute_cdp_cmd("Input.dispatchMouseEvent", {"type": "mouseWheel", "x": 600, "y": 300, "deltaX": 0, "deltaY": data.delta})
-        elif data.action == "text":
-            credential_redactions.add(data.text)
-            driver.switch_to.active_element.send_keys(data.text)
-        else:
-            keys = {"Tab": Keys.TAB, "Enter": Keys.ENTER, "Backspace": Keys.BACKSPACE, "ArrowUp": Keys.ARROW_UP, "ArrowDown": Keys.ARROW_DOWN, "ArrowLeft": Keys.ARROW_LEFT, "ArrowRight": Keys.ARROW_RIGHT, "SelectAll": Keys.CONTROL + "a"}
-            driver.switch_to.active_element.send_keys(keys[data.key])
-        return {"ok": True}
-    finally:
-        lock.release()
-
 @app.post("/login", dependencies=[Depends(auth)])
 def login(credentials: Credentials):
     global verified
-    if not lock.acquire(timeout=15):
+    if not lock.acquire(blocking=False):
         raise HTTPException(409, "Worker is busy")
     try:
         if state["status"] != "awaiting_otp":
@@ -225,7 +160,7 @@ def login(credentials: Credentials):
 
 @app.post("/open", dependencies=[Depends(auth)])
 def open_portal():
-    if not lock.acquire(timeout=15):
+    if not lock.acquire(blocking=False):
         raise HTTPException(409, "Worker is busy")
     try:
         if state["status"] != "awaiting_otp":
@@ -244,7 +179,7 @@ def open_portal():
 @app.post("/verify", dependencies=[Depends(auth)])
 def verify():
     global verified
-    if not lock.acquire(timeout=15):
+    if not lock.acquire(blocking=False):
         raise HTTPException(409, "Worker is busy")
     try:
         if state["status"] != "awaiting_otp":

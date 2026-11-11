@@ -1,5 +1,4 @@
 node_modules/
-.native/
 .npm-cache/
 dist/
 .env
@@ -20,6 +19,3 @@ cpcb_cookies.json
 # Local database credentials
 mongodb atlas database details.txt
 
-
-# Disposable verification files
-.tmp/

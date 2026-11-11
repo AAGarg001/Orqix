@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -31,6 +31,7 @@ import {
   PageHeader,
   StatusBadge,
 } from "./ui";
+const BrowserView = lazy(() => import("../BrowserView"));
 const useData = <T,>(path: string, enabled = true) =>
   useQuery({
     queryKey: [path],
@@ -56,6 +57,7 @@ export function BotPage({
     [deleteSetup, setDeleteSetup] = useState(false),
     [deleteYear, setDeleteYear] = useState(String(new Date().getFullYear())),
     [password, setPassword] = useState(""),
+    [browser, setBrowser] = useState(false),
     [preview, setPreview] = useState(false);
   const q = useData<{ job: Job }>(`/jobs/${jobId}`, !!jobId),
     job = q.data?.job,
@@ -71,12 +73,6 @@ export function BotPage({
       setJobId(activeJob.id);
     }
   }, [history.data, d.data, jobId, assignmentId, kind, session.user.id, session.user.permissions]);
-  const portalWindow = useRef<Window | null>(null);
-  function openPortalWindow(id?: string) {
-    const url = id ? `/portal-browser/${id}` : "/portal-browser";
-    portalWindow.current = window.open(url, "orqix-portal-browser", "popup,width=1440,height=1000,resizable=yes,scrollbars=yes");
-    if (!portalWindow.current) toast.error("Allow popups for ORQIX, then click Open portal window.");
-  }
   const shownAlerts = useRef(new Set<string>());
   useEffect(()=>{
     if(kind !== 'extract' || !job) return;
@@ -97,15 +93,14 @@ export function BotPage({
       if (!assignment)
         throw new Error("Select an authorized client and CPCB ID.");
       if (!password) throw new Error("Enter the CPCB password.");
-      const r = job?.status === "awaiting_otp" ? { job } : await post<{ job: Job }>("/jobs", {
+      const r = await post<{ job: Job }>("/jobs", {
         name: `${kind === "extract" ? "ExtractBot" : kind === "upload" ? "Upload Bot" : "Delete Bot"} · ${assignment.client?.name}`,
         mode: "all",
         assignmentId,
         kind,
       });
       setJobId(r.job.id);
-      if (portalWindow.current && !portalWindow.current.closed) portalWindow.current.location.replace(`/portal-browser/${r.job.id}`);
-      for (let i = 0; i < (session.workerRuntime === "hosted" ? 240 : 90); i++) {
+      for (let i = 0; i < 90; i++) {
         const { job } = await api<{ job: Job }>(`/jobs/${r.job.id}`);
         if (job.status === "failed") throw new Error(job.error ?? job.stage);
         if (job.status === "awaiting_otp") {
@@ -121,7 +116,7 @@ export function BotPage({
     },
     onSuccess: () => {
       setPassword("");
-      portalWindow.current?.focus();
+      if (session.workerRuntime === "docker") setBrowser(true);
       toast.success("CPCB login opened. Complete OTP manually.");
       void client.invalidateQueries();
     },
@@ -248,13 +243,13 @@ export function BotPage({
           </label>
           <div className="oq-actions">
             <Button
-              onClick={() => { if (session.workerRuntime === "hosted") openPortalWindow(); login.mutate(); }}
+              onClick={() => login.mutate()}
               disabled={
                 login.isPending ||
                 !assignment ||
                 !password ||
                 (!!job &&
-                  ["starting", "ready", "running"].includes(
+                  ["starting", "awaiting_otp", "ready", "running"].includes(
                     job.status,
                   ))
               }
@@ -282,7 +277,7 @@ export function BotPage({
             <Monitor size={17} />
             {session.workerRuntime === "local"
               ? "Actual Chrome opens on this backend computer. Enter the client OTP there and finish portal login."
-              : "Complete client OTP in the separate portal browser window."}
+              : "Complete client OTP in the authenticated remote browser below."}
           </div>
         </section>
         <section className="oq-card">
@@ -324,15 +319,15 @@ export function BotPage({
             </div>
           </dl>
           {job &&
-          session.workerRuntime !== "local" &&
+          session.workerRuntime === "docker" &&
           ["ready", "awaiting_otp", "running"].includes(job.status) ? (
-            <Button variant="secondary" onClick={() => openPortalWindow(job.id)}>
+            <Button variant="secondary" onClick={() => setBrowser(!browser)}>
               <Monitor size={16} />
-              Open portal window
+              {browser ? "Hide browser" : "View portal browser"}
             </Button>
           ) : null}
           {job &&
-          ["starting", "awaiting_otp", "ready", "running", ...(session.workerRuntime === "hosted" ? ["completed", "partial"] : [])].includes(
+          ["starting", "awaiting_otp", "ready", "running"].includes(
             job.status,
           ) ? (
             <Button
@@ -341,11 +336,18 @@ export function BotPage({
               onClick={() => act.mutate({ action: "cancel" })}
             >
               <Square size={14} />
-              {session.workerRuntime === "hosted" && ["completed", "partial"].includes(job.status) ? "Clear browser session and files" : "Cancel session"}
+              Cancel session
             </Button>
           ) : null}
         </section>
       </div>
+      {browser && job && session.workerRuntime === "docker" ? (
+        <section className="oq-card">
+          <Suspense fallback={<p>Loading secure browser…</p>}>
+            <BrowserView id={job.id} running={job.status === "running"} />
+          </Suspense>
+        </section>
+      ) : null}
       {kind === "upload" && job && uploadMode ? (
         <UploadPanel key={`${job.id}:${uploadMode}`} job={job} ready={ready} assignmentId={assignmentId} mode={uploadMode} />
       ) : null}

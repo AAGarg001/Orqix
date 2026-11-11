@@ -217,8 +217,8 @@ export function createApp(store: Store, runner: Runner) {
   app.get("/api/capacity", async (_req, res) => {
     const jobs = await store.pending();
     res.json({
-      active: config.WORKER_RUNTIME === "hosted" ? runner.occupiedSessions() : jobs.filter((j) => active(j.status)).length,
-      total: config.WORKER_RUNTIME === "hosted" ? 1 : config.MAX_CONCURRENT_JOBS,
+      active: jobs.filter((j) => active(j.status)).length,
+      total: config.MAX_CONCURRENT_JOBS,
     });
   });
   app.get("/api/events", (req, res) => {
@@ -314,30 +314,6 @@ export function createApp(store: Store, runner: Runner) {
     next();
   });
   app.get("/api/jobs/:id", (_req, res) => res.json({ job: res.locals.job }));
-  const browserAccess = (res: express.Response) => {
-    const job: Job = res.locals.job;
-    requirePermission(res.locals.user, job.kind === "upload" ? "bot.upload.execute" : job.kind === "delete" ? "bot.delete.request" : "bot.extract.execute");
-    if (config.WORKER_RUNTIME !== "hosted" || !["awaiting_otp", "ready"].includes(job.status))
-      failure("Browser controls are available only while completing portal login.", 409);
-    return job;
-  };
-  app.get("/api/jobs/:id/browser/frame", async (_req, res) => {
-    const job = browserAccess(res);
-    const image = await runner.call(job.id, "/browser/frame");
-    if (image.status === 204) { res.set("Cache-Control", "no-store").status(204).end(); return; }
-    res.set("Cache-Control", "no-store").type("image/png").send(Buffer.from(await image.arrayBuffer()));
-  });
-  app.post("/api/jobs/:id/browser/input", async (req, res) => {
-    const job = browserAccess(res);
-    const input = z.object({
-      action: z.enum(["click", "text", "key", "scroll"]),
-      x: z.number().int().min(0).max(1440).optional(), y: z.number().int().min(0).max(1000).optional(),
-      text: z.string().max(256).optional(),
-      key: z.enum(["Tab", "Enter", "Backspace", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "SelectAll"]).optional(),
-      delta: z.number().int().min(-800).max(800).optional(),
-    }).strict().parse(req.body);
-    res.set("Cache-Control", "no-store").json(await (await runner.call(job.id, "/browser/input", input)).json());
-  });
   app.post("/api/jobs/:id/open", async (_req, res) => {
     if (res.locals.job.status !== "awaiting_otp") {
       res.status(409).json({ error: "This job is not awaiting CPCB login." });
@@ -400,7 +376,7 @@ export function createApp(store: Store, runner: Runner) {
     res.json({ ok: true });
   });
   app.post("/api/jobs/:id/cancel", async (_req, res) => {
-    if (!active(res.locals.job.status) && !(config.WORKER_RUNTIME === "hosted" && ["completed", "partial"].includes(res.locals.job.status))) {
+    if (!active(res.locals.job.status)) {
       res.status(409).json({ error: "This job has already ended." });
       return;
     }

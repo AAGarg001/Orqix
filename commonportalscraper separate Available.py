@@ -8,13 +8,8 @@ import threading
 import time
 from datetime import datetime
 from pathlib import Path
-try:
-    import tkinter as tk
-    from tkinter import messagebox, ttk
-except ImportError:
-    # The hosted headless worker does not use the desktop GUI.
-    tk = None
-    messagebox = ttk = filedialog = simpledialog = None
+import tkinter as tk
+from tkinter import messagebox, ttk
 
 import pandas as pd
 from selenium import webdriver

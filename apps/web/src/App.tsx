@@ -811,7 +811,7 @@ function Workspace({ me }: { me: Me }) {
                         <dt>Stored metadata</dt>
                         <dd>Job status, section counts, timestamps</dd>
                         <dt>Environment</dt>
-                        <dd>{"Live · Python workers"}</dd>
+                        <dd>{"Live · Docker workers"}</dd>
                       </dl>
                     </div>
                   </section>
@@ -856,7 +856,7 @@ function Workspace({ me }: { me: Me }) {
                       [
                         "06",
                         "Live environment setup",
-                        "Local mode opens real Chrome on the backend computer. Hosted mode uses isolated headless Chromium browsers. Both run the original CPCB scraper; no sample data is generated.",
+                        "Local mode opens real Chrome on the backend computer. Hosted mode uses isolated Docker browsers. Both run the original CPCB scraper; no sample data is generated.",
                       ],
                     ].map(([n, title, text]) => (
                       <article className="guide-card" key={n}>
@@ -1248,7 +1248,7 @@ function JobDialog({
       {
         onSuccess: () => {
           form.reset();
-          if (me.workerRuntime === "hosted") setBrowser(true);
+          if (me.workerRuntime === "docker") setBrowser(true);
         },
       },
     );
@@ -1357,7 +1357,7 @@ function JobDialog({
           <Play size={17} /> {"Run extraction"}
         </Button>
       ) : null}
-      {me.workerRuntime === "hosted" &&
+      {me.workerRuntime === "docker" &&
       ["awaiting_otp", "ready", "running"].includes(job.status) ? (
         <div className="browser-section">
           <Button onClick={() => setBrowser(!browser)}>

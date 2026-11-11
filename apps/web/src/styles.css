@@ -1300,7 +1300,7 @@ input::placeholder {
   font-size: 10px;
   margin: 10px 0;
 }
-.portal-browser-screen {
+.vnc-screen {
   height: 440px;
   background: #17251e;
   overflow: hidden;
@@ -2157,7 +2157,7 @@ input::placeholder {
   .job-status-line > span:last-child {
     margin-left: 0;
   }
-  .portal-browser-screen {
+  .vnc-screen {
     height: 300px;
   }
   .action-row .button {
