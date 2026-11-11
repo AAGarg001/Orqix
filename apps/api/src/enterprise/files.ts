@@ -7,6 +7,9 @@ import {
 import { mkdir, readFile, writeFile, unlink } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
+import mongoose from "mongoose";
 import { config } from "../config.js";
 export function validateExcelArchive(buffer: Buffer) {
   let end = -1;
@@ -50,8 +53,20 @@ export function validateExcelArchive(buffer: Buffer) {
   }
 }
 export class PrivateFiles {
+  private bucket() {
+    const db = mongoose.connection.db;
+    if (mongoose.connection.readyState !== 1 || !db)
+      throw Object.assign(new Error("MongoDB private storage is unavailable."), { status: 503 });
+    return new mongoose.mongo.GridFSBucket(db, { bucketName: "orqix_private_files" });
+  }
   async delete(file: {key:string;storage?:unknown}) {
     if (!/^[a-f0-9-]{36}$/.test(file.key)) throw new Error('Invalid private file key');
+    if (file.storage === "mongodb") {
+      const bucket = this.bucket();
+      const stored = await bucket.find({ filename: file.key }).next();
+      if (stored) await bucket.delete(stored._id);
+      return;
+    }
     if (file.storage === 'spaces') {
       if (!this.s3) throw new Error('Spaces unavailable');
       await this.s3.send(new DeleteObjectCommand({Bucket:config.SPACES_BUCKET,Key:file.key}));
@@ -74,7 +89,19 @@ export class PrivateFiles {
     : null;
   async put(buffer: Buffer, name: string, contentType: string) {
     const key = randomUUID();
-    if (this.s3)
+    const storage = config.PRIVATE_FILE_STORAGE;
+    if (storage === "mongodb") {
+      const upload = this.bucket().openUploadStream(key, {
+        metadata: { name: path.basename(name), contentType },
+      });
+      try {
+        await pipeline(Readable.from([buffer]), upload);
+      } catch (error) {
+        await upload.abort().catch(() => {});
+        throw error;
+      }
+    } else if (storage === "spaces") {
+      if (!this.s3) throw Object.assign(new Error("Private Spaces storage is not configured."), { status: 503 });
       await this.s3.send(
         new PutObjectCommand({
           Bucket: config.SPACES_BUCKET,
@@ -84,10 +111,10 @@ export class PrivateFiles {
           ACL: "private",
         }),
       );
-    else {
+    } else {
       if (process.env.NODE_ENV === "production")
         throw Object.assign(
-          new Error("Private Spaces storage is not configured."),
+          new Error("Local private storage is disabled in production."),
           { status: 503 },
         );
       await mkdir(path.resolve(config.LOCAL_PRIVATE_DIRECTORY), { recursive: true });
@@ -100,12 +127,18 @@ export class PrivateFiles {
       name: path.basename(name),
       contentType,
       size: buffer.length,
-      storage: this.s3 ? "spaces" : "local",
+      storage,
     };
   }
   async get(file: { key: string; storage?: unknown }) {
     if (!/^[a-f0-9-]{36}$/.test(file.key))
       throw new Error("Invalid private file key");
+    if (file.storage === "mongodb") {
+      const chunks: Buffer[] = [];
+      for await (const chunk of this.bucket().openDownloadStreamByName(file.key))
+        chunks.push(Buffer.from(chunk));
+      return Buffer.concat(chunks);
+    }
     if (file.storage === "spaces") {
       if (!this.s3) throw new Error("Spaces unavailable");
       const r = await this.s3.send(
