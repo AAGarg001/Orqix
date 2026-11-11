@@ -220,7 +220,7 @@ export function createApp(store: Store, runner: Runner) {
   app.get("/api/capacity", async (_req, res) => {
     const jobs = await store.pending();
     res.json({
-      active: jobs.filter((j) => active(j.status)).length,
+      active: config.WORKER_RUNTIME === "hosted" ? runner.occupiedSessions() : jobs.filter((j) => active(j.status)).length,
       total: config.WORKER_RUNTIME === "hosted" ? 1 : config.MAX_CONCURRENT_JOBS,
     });
   });
@@ -391,7 +391,7 @@ export function createApp(store: Store, runner: Runner) {
     res.json({ ok: true });
   });
   app.post("/api/jobs/:id/cancel", async (_req, res) => {
-    if (!active(res.locals.job.status)) {
+    if (!active(res.locals.job.status) && !(config.WORKER_RUNTIME === "hosted" && ["completed", "partial"].includes(res.locals.job.status))) {
       res.status(409).json({ error: "This job has already ended." });
       return;
     }

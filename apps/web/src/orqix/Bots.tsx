@@ -327,7 +327,7 @@ export function BotPage({
             </Button>
           ) : null}
           {job &&
-          ["starting", "awaiting_otp", "ready", "running"].includes(
+          ["starting", "awaiting_otp", "ready", "running", ...(session.workerRuntime === "hosted" ? ["completed", "partial"] : [])].includes(
             job.status,
           ) ? (
             <Button
@@ -336,7 +336,7 @@ export function BotPage({
               onClick={() => act.mutate({ action: "cancel" })}
             >
               <Square size={14} />
-              Cancel session
+              {session.workerRuntime === "hosted" && ["completed", "partial"].includes(job.status) ? "Clear browser session and files" : "Cancel session"}
             </Button>
           ) : null}
         </section>

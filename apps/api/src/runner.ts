@@ -53,6 +53,8 @@ export class Runner {
       );
     this.locked = true;
     try {
+      if (config.WORKER_RUNTIME === "hosted" && this.executions.size >= 1)
+        throw Object.assign(new Error("Close the existing browser session or clear its temporary files before starting another."), { status: 503 });
       const jobs = await this.store.pending();
       if (
         jobs.filter((j) => active(j.status)).length >=
@@ -412,6 +414,7 @@ export class Runner {
   base(id: string) {
     return this.executions.get(id)?.base;
   }
+  occupiedSessions() { return this.executions.size; }
   browserBase(id: string) {
     const execution = this.executions.get(id);
     return execution?.browserBlocked ? undefined : execution?.browserBase;
